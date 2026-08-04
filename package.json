@@ -1,0 +1,13 @@
+{
+  "name": "liangliangqiangqiang",
+  "version": "0.1.0",
+  "private": true,
+  "description": "踉踉跄跄——一只努力跟上每个任务进度的三花猫桌面宠物",
+  "scripts": {
+    "preview": "python -m http.server 4173 -d src",
+    "tauri": "tauri"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.8.0"
+  }
+}
