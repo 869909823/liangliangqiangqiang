@@ -34,7 +34,7 @@ pub fn run() {
                 .icon(app.default_window_icon().expect("应用图标缺失").clone())
                 .tooltip("踉踉跄跄")
                 .menu(&menu)
-                .on_menu_event(|app, event| {
+                .on_menu_event(move |app, event| {
                     let Some(window) = app.get_webview_window("main") else { return };
                     match event.id.as_ref() {
                         "show" => {
