@@ -1,0 +1,4 @@
+name: 发布手机版网页
+
+on:
+  workflow_dispatch:
