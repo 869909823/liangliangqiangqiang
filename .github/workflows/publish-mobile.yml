@@ -1,25 +1,19 @@
-name: 发布手机版网页
+pages@v4
 
-on:
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-jobs:
-  publish:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+  build-windows:
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/setup-node@v4
         with:
-          path: src
-      - name: 发布到 GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          node-version: 20
+      - uses: dtolnay/rust-toolchain@stable
+      - name: 安装云端构建依赖
+        run: npm install
+      - name: 构建 Windows 安装包
+        run: npm run tauri build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: 踉踉跄跄-Windows
+          path: src-tauri/target/release/bundle/nsis/*.exe
+          if-no-files-found: error
