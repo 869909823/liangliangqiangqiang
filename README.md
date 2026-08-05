@@ -44,3 +44,8 @@ python -m http.server 4173 -d src
 - 不使用不稳定的 Explorer `WorkerW` 强制嵌入。
 - 不加入 Live2D、账号、云同步、遥测、远程代码或自动安装更新。
 - 更新检查只提示 GitHub Release 下载页面。
+## 本地网页预览
+
+不要直接双击 `src/index.html`：浏览器会因 `file://` 安全限制拦截 ES Module，页面会显示但按钮不会工作。
+
+请双击项目根目录的 `打开预览.vbs`（后台启动本地服务），或双击 `打开网页.cmd`。它们会自动打开可交互网页。
