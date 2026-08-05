@@ -40,7 +40,9 @@ jobs:
       - name: 接受 SDK 许可并安装 NDK
         shell: bash
         run: |
-          yes | sdkmanager --licenses >/dev/null
+          # sdkmanager 接受完许可即退出，yes 继续写管道会触发 SIGPIPE（Broken pipe）
+          # 此时许可实际已接受；|| true 防止管道误报失败
+          yes | sdkmanager --licenses >/dev/null 2>&1 || true
           sdkmanager "ndk;27.0.12077973" "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
       - uses: dtolnay/rust-toolchain@stable
