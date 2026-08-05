@@ -12,4 +12,4 @@ command = "powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden
   "-WorkingDirectory '" & escapedFolder & "' -WindowStyle Hidden" & Chr(34)
 shell.Run command, 0, False
 WScript.Sleep 700
-shell.Run "http://127.0.0.1:4174/?v=2947c57", 1, False
+shell.Run "http://127.0.0.1:4174/?v=9cc8e2a", 1, False
