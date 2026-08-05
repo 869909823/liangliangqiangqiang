@@ -42,8 +42,8 @@ def render(path: Path, frequency: float, seed: int) -> None:
 
 def main() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    render(OUTPUT_DIR / "mokugyo-soft.wav", 520.0, 23)
-    render(OUTPUT_DIR / "mokugyo-bright.wav", 640.0, 47)
+    render(OUTPUT_DIR / "mokugyo-soft.wav", 235.0, 23)
+    render(OUTPUT_DIR / "mokugyo-bright.wav", 235.0, 47)
 
 
 if __name__ == "__main__":

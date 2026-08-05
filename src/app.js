@@ -62,7 +62,8 @@ const elements = {
   restoreDefaults: document.querySelector('#restore-defaults'),
   settingsNote: document.querySelector('#settings-note'),
   updateBanner: document.querySelector('#update-banner'),
-  toast: document.querySelector('#toast')
+  toast: document.querySelector('#toast'),
+  rewardPop: document.querySelector('#reward-pop')
 };
 
 const stateButtons = [...document.querySelectorAll('[data-state]')];
@@ -86,6 +87,8 @@ let pendingUpdate = null;
 let pwaReloadRequested = false;
 let currentQuiz = null;
 let fishingCatchTimer = null;
+let rewardTimer = null;
+let muyuRewardTimer = null;
 
 document.body.classList.add(platform.isTauri ? 'is-tauri' : 'is-web', 'motion-ready');
 
@@ -107,6 +110,28 @@ function stopFishingCatchLoop() {
   elements.pet.classList.remove('fish-caught');
 }
 
+function showReward(text) {
+  elements.rewardPop.textContent = text;
+  elements.rewardPop.classList.remove('show');
+  void elements.rewardPop.offsetWidth;
+  elements.rewardPop.classList.add('show');
+  if (rewardTimer !== null) clearTimeout(rewardTimer);
+  rewardTimer = setTimeout(() => elements.rewardPop.classList.remove('show'), 1200);
+}
+
+function stopMuyuRewardLoop() {
+  if (muyuRewardTimer !== null) clearInterval(muyuRewardTimer);
+  muyuRewardTimer = null;
+}
+
+function startMuyuRewardLoop() {
+  stopMuyuRewardLoop();
+  showReward('功德 +1');
+  muyuRewardTimer = setInterval(() => {
+    if (stateMachine.state === 'muyu') showReward('功德 +1');
+  }, 600);
+}
+
 function scheduleFishingCatch() {
   stopFishingCatchLoop();
   const wait = 5000 + Math.floor(Math.random() * 5001);
@@ -114,6 +139,7 @@ function scheduleFishingCatch() {
     fishingCatchTimer = null;
     if (stateMachine.state !== 'fishing' || document.hidden || !desktopWindowVisible) return;
     elements.pet.classList.add('fish-caught');
+    showReward('食物 +1');
     elements.bubble.textContent = '上鱼啦！慢慢收线，今天也有小收获。';
     setTimeout(() => elements.pet.classList.remove('fish-caught'), 1500);
     scheduleFishingCatch();
@@ -141,6 +167,7 @@ function renderState({ state, previousState, options }) {
   if (state === previousState) void elements.pet.offsetWidth;
   elements.pet.classList.add(`state-${state}`);
   if (state === 'fishing') scheduleFishingCatch(); else stopFishingCatchLoop();
+  if (state === 'muyu') startMuyuRewardLoop(); else stopMuyuRewardLoop();
   elements.quizCard.hidden = state !== 'quiz';
   elements.storyCard.hidden = state !== 'story';
   if (state === 'quiz' && state !== previousState) renderQuiz();

@@ -100,7 +100,7 @@ export class PetAudioManager {
     this.loopTimer = this.setTimer(() => {
       this.loopTimer = null;
       if (this.muyuLoop && this.visible) this.scheduleMuyuCycle();
-    }, 1000);
+    }, 600);
   }
 
   scheduleClip(name, delay) {
