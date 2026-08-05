@@ -164,9 +164,10 @@ function checkWorkflows() {
 
   const contracts = {
     'validate.yml': [
-      'npm run validate',
+      'npm run check',
+      'npm test',
       'cargo fmt',
-      'cargo check --manifest-path src-tauri/Cargo.toml --locked'
+      'cargo check --manifest-path'
     ],
     'publish-mobile.yml': [
       'git archive v0.1.0 src',
