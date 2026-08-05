@@ -1,46 +1,46 @@
-# 踉踉跄跄
+# 踉踉跄跄 V2
 
-一只努力跟上每个任务进度的三花猫 Windows 桌面宠物。
+一只努力跟上每个任务进度的三花猫。V2 继续使用 V1 的圆脸、三花纹路、浅蓝围巾、小鱼吊坠、键盘和整体比例，不重新设计角色。
 
-## 当前版本
+当前版本：`0.2.0-beta.1`
 
-`0.1.0` 是可交互的桌面版起点：沿用第一版 CSS 三花猫造型，包含待机、工作、思考、出错、完成、睡觉和自动陪伴，支持点击反应、拖动、气泡开关、置顶、鼠标穿透、托盘菜单和开机启动菜单项。
+## V2 重点
 
-同一套前端也是可安装的手机 PWA。手机发布与不占用本机空间的 Windows 云端打包方式见 `docs/PHONE_AND_DESKTOP.md`。
+- Windows 提供桌面专属、普通非置顶、始终置顶三种显示模式，默认只在桌面出现。
+- 窗口按 10%–200% 等比例缩放（步进 10%），并记忆显示器、位置和设置。
+- 七个主状态：待机、工作、思考、出错、完成、睡觉、摸鱼。
+- 新增伸懒腰、打哈欠、吃小鱼干、偷看用户四个自然待机动作。
+- 摸鱼时敲三次木鱼；本地声音默认关闭，启用后的默认音量为 25%。
+- 手机版是可添加到主屏幕的 PWA，共用角色状态和声音，但不能跨应用悬浮。
 
-## 预览前端
+## 无安装预览
 
-无需安装前端依赖。进入项目目录后运行：
+项目继续使用原生 HTML、CSS 和 JavaScript，不需要前端框架。电脑已有 Python 时可运行：
 
 ```powershell
 python -m http.server 4173 -d src
 ```
 
-打开 `http://localhost:4173`。普通浏览器中无法验证透明桌面窗口、托盘和开机启动。
+再打开 `http://localhost:4173`。普通浏览器只能验证角色和 PWA 页面，不能验证透明窗口、托盘或 Windows 显示模式。
 
-## 运行桌面版
+用户不需要在本机安装 Node.js、Rust 或 Tauri。推送到 GitHub 后，由 Actions 在云端验证、发布网页并生成 Windows 安装包。
 
-先安装 Windows WebView2、Rust stable 与 Node.js，然后执行：
+仓库第一次还没有 `src-tauri/Cargo.lock` 时，手动运行一次“构建 Windows”，下载同次运行中的 `generated-cargo-lock` Artifact，把其中的文件放回 `src-tauri/Cargo.lock` 并提交。正式 Release 会在锁文件缺失时停止，避免依赖漂移。
 
-```powershell
-npm install
-npm run tauri dev
-```
+## 云端工作流
 
-打包：
+| 工作流 | 用途 | 触发方式 |
+| --- | --- | --- |
+| `validate.yml` | JavaScript、状态/设置/PWA 单测、Rust 格式和编译检查 | 推送、PR、手动 |
+| `publish-mobile.yml` | 发布手机版；Beta 放在 `/beta/`，稳定版放在根路径 | 版本标签或手动 |
+| `build-windows.yml` | 构建 NSIS 安装包和 SHA-256 文件 | 手动，或由 Release 调用 |
+| `release.yml` | 将 Windows 安装包长期附加到 GitHub Release | `v0.2.*` 标签 |
 
-```powershell
-npm run tauri build
-```
+发布步骤与回滚方式见 [发布检查清单](docs/RELEASE_CHECKLIST.md)，工程边界和接手说明见 [V2 交接文档](docs/V2_HANDOFF.md)。
 
-如果不希望在本机安装开发工具，可以把项目放入 GitHub 仓库，再手动运行 `.github/workflows/publish-mobile.yml`。它会同时发布手机版并在云端构建 Windows 安装包，本机只需下载最终文件。
+## 项目边界
 
-## 操作
-
-- 拖动猫咪移动窗口。
-- 单击猫咪触发随机反应。
-- 点击下方圆点展开状态栏。
-- 右键猫咪显示/隐藏文字气泡。
-- 托盘菜单可切换置顶、鼠标穿透、开机启动，或退出程序。
-
-鼠标穿透开启后，窗口本身不能接收鼠标；请从系统托盘关闭穿透。
+- 不接入 Codex 内部状态。
+- 不使用不稳定的 Explorer `WorkerW` 强制嵌入。
+- 不加入 Live2D、账号、云同步、遥测、远程代码或自动安装更新。
+- 更新检查只提示 GitHub Release 下载页面。

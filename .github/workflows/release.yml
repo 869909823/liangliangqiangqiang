@@ -1,0 +1,61 @@
+name: 发布 GitHub Release
+
+on:
+  push:
+    tags:
+      - 'v0.2.*'
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 禁止未锁定依赖的正式发布
+        shell: bash
+        run: |
+          if [[ ! -f src-tauri/Cargo.lock ]]; then
+            echo '缺少 src-tauri/Cargo.lock。请先手动运行“构建 Windows”，下载 generated-cargo-lock 并提交。' >&2
+            exit 1
+          fi
+
+  build:
+    needs: preflight
+    uses: ./.github/workflows/build-windows.yml
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: 核对标签与应用版本
+        shell: bash
+        env:
+          TAG: ${{ github.ref_name }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          if [[ "$TAG" != "v$VERSION" ]]; then
+            echo "标签 $TAG 与应用版本 v$VERSION 不一致" >&2
+            exit 1
+          fi
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-installer
+          path: release-assets
+      - name: 创建或更新 Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" release-assets/* --clobber
+          elif [[ "$TAG" == *-* ]]; then
+            gh release create "$TAG" release-assets/* --title "踉踉跄跄 $TAG" --generate-notes --prerelease
+          else
+            gh release create "$TAG" release-assets/* --title "踉踉跄跄 $TAG" --generate-notes --latest
+          fi

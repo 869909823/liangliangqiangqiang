@@ -1,0 +1,49 @@
+"""Generate two tiny, original wooden-fish WAV effects with the standard library."""
+
+from __future__ import annotations
+
+import math
+import random
+import struct
+import wave
+from pathlib import Path
+
+
+SAMPLE_RATE = 16_000
+DURATION_SECONDS = 0.26
+OUTPUT_DIR = Path(__file__).resolve().parents[1] / "src" / "assets" / "audio"
+
+
+def render(path: Path, frequency: float, seed: int) -> None:
+    randomizer = random.Random(seed)
+    frame_count = round(SAMPLE_RATE * DURATION_SECONDS)
+    frames = bytearray()
+
+    for index in range(frame_count):
+        time = index / SAMPLE_RATE
+        attack = min(1.0, time / 0.004)
+        envelope = attack * math.exp(-18.5 * time)
+        body = (
+            math.sin(2 * math.pi * frequency * time)
+            + 0.42 * math.sin(2 * math.pi * frequency * 1.52 * time + 0.35)
+            + 0.18 * math.sin(2 * math.pi * frequency * 2.08 * time + 1.1)
+        )
+        knock = randomizer.uniform(-1.0, 1.0) * math.exp(-70 * time)
+        sample = max(-1.0, min(1.0, (body * 0.48 + knock * 0.22) * envelope))
+        frames.extend(struct.pack("<h", round(sample * 32767)))
+
+    with wave.open(str(path), "wb") as audio:
+        audio.setnchannels(1)
+        audio.setsampwidth(2)
+        audio.setframerate(SAMPLE_RATE)
+        audio.writeframes(frames)
+
+
+def main() -> None:
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    render(OUTPUT_DIR / "mokugyo-soft.wav", 520.0, 23)
+    render(OUTPUT_DIR / "mokugyo-bright.wav", 640.0, 47)
+
+
+if __name__ == "__main__":
+    main()

@@ -2,58 +2,157 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#a9d8e5">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="踉踉跄跄">
   <title>踉踉跄跄</title>
   <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <main id="pet" class="pet state-idle" aria-label="三花猫桌面宠物">
-    <div id="bubble" class="bubble" role="status">慢一点也没关系。</div>
+  <div id="app-viewport" class="app-viewport">
+    <main id="pet" class="pet state-idle" aria-label="三花猫桌面宠物踉踉跄跄">
+      <button id="update-banner" class="update-banner" type="button" hidden>
+        新版本已准备好，点击刷新
+      </button>
 
-    <button id="cat" class="cat" type="button" aria-label="拖动或点击踉踉跄跄">
-      <span class="ear left"></span>
-      <span class="ear right"></span>
-      <span class="head">
-        <i class="patch one"></i>
-        <i class="patch two"></i>
-        <i class="patch three"></i>
-        <i class="stripe s1"></i>
-        <i class="stripe s2"></i>
-        <i class="eye left"></i>
-        <i class="eye right"></i>
-        <i class="nose"></i>
-        <i class="mouth"></i>
-      </span>
-      <span class="scarf"></span>
-      <span class="body"><i class="chest"></i></span>
-      <span class="paw left"></span>
-      <span class="paw right"></span>
-      <span class="fish"></span>
-      <span class="keyboard"><i></i><i></i><i></i><i></i></span>
-      <span class="question">？</span>
-      <span class="tea">茶</span>
-      <span class="sparkle one">✦</span>
-      <span class="sparkle two">✦</span>
-      <span class="zzz">Zzz…</span>
-    </button>
+      <div id="bubble" class="bubble" role="status">慢一点也没关系。</div>
 
-    <button id="menu-toggle" class="menu-toggle" type="button" aria-expanded="false" aria-controls="controls">●</button>
-    <nav id="controls" class="controls" aria-label="状态切换">
-      <button type="button" data-state="idle">待机</button>
-      <button type="button" data-state="working">工作</button>
-      <button type="button" data-state="thinking">思考</button>
-      <button type="button" data-state="error">出错</button>
-      <button type="button" data-state="complete">完成</button>
-      <button type="button" data-state="sleeping">睡觉</button>
-      <button id="auto-mode" type="button">自动</button>
-    </nav>
-  </main>
-  <script src="app.js"></script>
+      <button id="cat" class="cat" type="button" aria-label="拖动或点击踉踉跄跄">
+        <span class="ear left"></span>
+        <span class="ear right"></span>
+        <span class="tail"></span>
+        <span class="head">
+          <i class="patch one"></i>
+          <i class="patch two"></i>
+          <i class="patch three"></i>
+          <i class="stripe s1"></i>
+          <i class="stripe s2"></i>
+          <i class="eye left"></i>
+          <i class="eye right"></i>
+          <i class="nose"></i>
+          <i class="mouth"></i>
+        </span>
+        <span class="scarf"></span>
+        <span class="body"><i class="chest"></i></span>
+        <span class="paw left"></span>
+        <span class="paw right"></span>
+        <span class="fish"></span>
+        <span class="keyboard"><i></i><i></i><i></i><i></i></span>
+        <span class="question">？</span>
+        <span class="tea">茶</span>
+        <span class="sparkle one">✨</span>
+        <span class="sparkle two">✨</span>
+        <span class="zzz">Zzz…</span>
+        <span class="snack-prop" aria-hidden="true"></span>
+        <span class="moyu-set" aria-hidden="true">
+          <i class="wooden-fish"></i>
+          <i class="mallet"></i>
+        </span>
+      </button>
+
+      <button id="menu-toggle" class="menu-toggle" type="button" aria-expanded="false" aria-controls="controls" title="打开动作菜单">●</button>
+      <nav id="controls" class="controls" aria-label="状态切换">
+        <button type="button" data-state="idle">待机</button>
+        <button type="button" data-state="working">工作</button>
+        <button type="button" data-state="thinking">思考</button>
+        <button type="button" data-state="error">出错</button>
+        <button type="button" data-state="complete">完成</button>
+        <button type="button" data-state="sleeping">睡觉</button>
+        <button type="button" data-state="moyu">摸鱼</button>
+        <button id="auto-mode" type="button" aria-pressed="true">自动</button>
+        <button id="open-settings" type="button">设置</button>
+      </nav>
+
+      <section id="settings-panel" class="settings-panel" aria-hidden="true" aria-labelledby="settings-title">
+        <header class="settings-header">
+          <h2 id="settings-title">踉踉跄跄设置</h2>
+          <button id="close-settings" class="icon-button" type="button" aria-label="关闭设置">×</button>
+        </header>
+
+        <div class="settings-content">
+          <fieldset class="setting-group platform-windows">
+            <legend>窗口</legend>
+            <label class="setting-row" for="display-mode">
+              <span>显示模式</span>
+              <select id="display-mode">
+                <option value="desktop-only">只在桌面显示</option>
+                <option value="normal">普通窗口层级</option>
+                <option value="always-on-top">始终置顶</option>
+              </select>
+            </label>
+          </fieldset>
+
+          <fieldset class="setting-group">
+            <legend>大小</legend>
+            <label class="setting-row range-row" for="scale-percent">
+              <span>等比例缩放</span>
+              <output id="scale-value" class="range-value" for="scale-percent">100%</output>
+              <input id="scale-percent" type="range" min="10" max="200" step="10" value="100">
+            </label>
+            <div class="preset-row" aria-label="缩放快捷档位">
+              <button type="button" data-scale="80">小 80%</button>
+              <button type="button" data-scale="100">标准 100%</button>
+              <button type="button" data-scale="130">大 130%</button>
+            </div>
+          </fieldset>
+
+          <fieldset class="setting-group">
+            <legend>陪伴</legend>
+            <label class="toggle-row" for="bubble-enabled"><span>显示文字气泡</span><input id="bubble-enabled" type="checkbox" checked></label>
+            <label class="toggle-row" for="auto-companion"><span>自动陪伴</span><input id="auto-companion" type="checkbox" checked></label>
+            <label class="setting-row" for="sleep-after">
+              <span>无操作后睡眠</span>
+              <select id="sleep-after">
+                <option value="5">5 分钟</option>
+                <option value="15" selected>15 分钟</option>
+                <option value="30">30 分钟</option>
+                <option value="0">从不</option>
+              </select>
+            </label>
+          </fieldset>
+
+          <fieldset class="setting-group">
+            <legend>声音与动画</legend>
+            <label class="toggle-row" for="sound-enabled"><span>木鱼声音</span><input id="sound-enabled" type="checkbox"></label>
+            <label id="volume-row" class="setting-row range-row volume-row disabled" for="volume-percent">
+              <span>音量</span>
+              <output id="volume-value" class="range-value" for="volume-percent">25%</output>
+              <input id="volume-percent" type="range" min="0" max="100" step="1" value="25" disabled>
+            </label>
+            <label class="setting-row" for="reduce-motion">
+              <span>动画效果</span>
+              <select id="reduce-motion">
+                <option value="system">跟随系统</option>
+                <option value="reduce">减少动画</option>
+                <option value="full">完整动画</option>
+              </select>
+            </label>
+          </fieldset>
+
+          <fieldset class="setting-group platform-windows">
+            <legend>位置</legend>
+            <label class="toggle-row" for="position-locked"><span>锁定位置</span><input id="position-locked" type="checkbox"></label>
+            <label class="toggle-row" for="edge-snap"><span>边缘吸附</span><input id="edge-snap" type="checkbox" checked></label>
+          </fieldset>
+
+          <div class="settings-actions">
+            <button id="check-updates" type="button">检查更新</button>
+            <button id="reset-position" class="platform-windows" type="button">重置位置</button>
+            <button id="restore-defaults" type="button">恢复默认</button>
+          </div>
+          <p id="settings-note" class="settings-note" role="status"></p>
+        </div>
+      </section>
+
+      <div id="toast" class="toast" role="status"></div>
+    </main>
+  </div>
+
+  <script type="module" src="app.js"></script>
 </body>
 </html>

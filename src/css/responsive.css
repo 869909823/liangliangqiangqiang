@@ -1,0 +1,28 @@
+@media (hover: none) {
+  button:active { filter: brightness(.94); transform: translateY(1px); }
+  .cat:active { filter: drop-shadow(0 5px 4px rgba(64, 50, 56, .16)); }
+}
+
+@media (max-width: 480px) {
+  body.is-web .settings-panel {
+    inset: auto 5px max(3px, env(safe-area-inset-bottom));
+    max-height: min(402px, calc(100dvh - env(safe-area-inset-top) - 8px));
+    border-radius: 22px 22px 15px 15px;
+    transform: translateY(105%);
+  }
+
+  body.is-web .settings-panel.open { transform: translateY(0); }
+  .settings-content { padding-bottom: max(15px, env(safe-area-inset-bottom)); }
+  .controls button { min-height: 27px; }
+  .update-banner { top: max(8px, env(safe-area-inset-top)); }
+}
+
+@media (max-height: 430px) and (orientation: landscape) {
+  body.is-web .settings-panel {
+    inset: 4px 8px;
+    max-height: none;
+  }
+
+  .settings-header { padding-block: 7px 5px; }
+  .setting-group { margin-top: 5px; padding-bottom: 5px; }
+}

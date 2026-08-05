@@ -1,24 +1,31 @@
 {
+  "id": "./",
   "name": "踉踉跄跄｜三花猫桌面宠物",
   "short_name": "踉踉跄跄",
   "description": "一只努力跟上每个任务进度的三花猫",
   "lang": "zh-CN",
-  "start_url": "./index.html",
+  "dir": "ltr",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "any",
   "background_color": "#fffaf0",
   "theme_color": "#a9d8e5",
+  "categories": ["entertainment", "lifestyle"],
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "icons/icon-192.png",
+      "src": "./icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "./icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }

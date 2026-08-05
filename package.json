@@ -1,13 +1,17 @@
 {
   "name": "liangliangqiangqiang",
-  "version": "0.1.0",
+  "version": "0.2.0-beta.1",
+  "type": "module",
   "private": true,
   "description": "踉踉跄跄——一只努力跟上每个任务进度的三花猫桌面宠物",
   "scripts": {
+    "check": "node scripts/check.mjs",
+    "test": "node --test",
+    "validate": "npm run check && npm test",
     "preview": "python -m http.server 4173 -d src",
     "tauri": "tauri"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2.8.0"
+    "@tauri-apps/cli": "2.8.0"
   }
 }
