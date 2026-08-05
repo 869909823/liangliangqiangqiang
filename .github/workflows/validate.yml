@@ -73,3 +73,17 @@ jobs:
             Write-Warning '未检测到 Cargo.lock，使用 cargo check（不加 --locked）以兼容 v2 分支首次构建'
             cargo check --manifest-path $manifest
           }
+      - name: 提交生成的 Cargo.lock
+        shell: pwsh
+        run: |
+          $changed = git status --porcelain -- src-tauri/Cargo.lock
+          if (-not [string]::IsNullOrWhiteSpace($changed)) {
+            git config user.name 'github-actions[bot]'
+            git config user.email 'github-actions[bot]@users.noreply.github.com'
+            git add src-tauri/Cargo.lock
+            git commit -m 'chore: 提交 Cargo.lock'
+            git push
+            Write-Host 'Cargo.lock 已提交并推送'
+          } else {
+            Write-Host 'Cargo.lock 无变化，跳过提交'
+          }
