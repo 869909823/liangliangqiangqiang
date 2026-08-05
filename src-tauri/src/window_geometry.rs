@@ -193,7 +193,9 @@ pub fn ensure_visible(app: &tauri::AppHandle) -> Result<(), String> {
     let window = main_window(app)?;
     let store = app.state::<SettingsStore>();
     let settings = store.get();
-    let available = window.available_monitors().map_err(|error| error.to_string())?;
+    let available = window
+        .available_monitors()
+        .map_err(|error| error.to_string())?;
     let saved_monitor_exists = settings.monitor_name.as_ref().is_some_and(|saved| {
         available
             .iter()
@@ -292,7 +294,10 @@ fn apply_to_monitor(
     settings.scale_percent = settings.scale_percent.min(maximum);
     let scale = f64::from(settings.scale_percent) / 100.0;
     window
-        .set_size(LogicalSize::new(DESIGN_WIDTH * scale, DESIGN_HEIGHT * scale))
+        .set_size(LogicalSize::new(
+            DESIGN_WIDTH * scale,
+            DESIGN_HEIGHT * scale,
+        ))
         .map_err(|error| error.to_string())?;
 
     let physical_size = PhysicalSize::new(
@@ -300,8 +305,18 @@ fn apply_to_monitor(
         (DESIGN_HEIGHT * scale * monitor.scale_factor()).round() as u32,
     );
     let position = PhysicalPosition::new(
-        axis_position(settings.x_ratio, work.left, work.width(), physical_size.width),
-        axis_position(settings.y_ratio, work.top, work.height(), physical_size.height),
+        axis_position(
+            settings.x_ratio,
+            work.left,
+            work.width(),
+            physical_size.width,
+        ),
+        axis_position(
+            settings.y_ratio,
+            work.top,
+            work.height(),
+            physical_size.height,
+        ),
     );
     window
         .set_position(clamp_position(position, physical_size, work))
@@ -381,9 +396,7 @@ fn work_area(monitor: &Monitor) -> WorkArea {
     use std::mem::size_of;
     use windows_sys::Win32::{
         Foundation::{POINT, RECT},
-        Graphics::Gdi::{
-            GetMonitorInfoW, MonitorFromPoint, MONITORINFO, MONITOR_DEFAULTTONEAREST,
-        },
+        Graphics::Gdi::{GetMonitorInfoW, MonitorFromPoint, MONITORINFO, MONITOR_DEFAULTTONEAREST},
     };
 
     let position = monitor.position();

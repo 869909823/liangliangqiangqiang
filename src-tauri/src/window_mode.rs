@@ -167,13 +167,8 @@ fn desktop_or_pet_is_foreground() -> bool {
     }
 
     let mut class_name = [0_u16; 64];
-    let length = unsafe {
-        GetClassNameW(
-            foreground,
-            class_name.as_mut_ptr(),
-            class_name.len() as i32,
-        )
-    };
+    let length =
+        unsafe { GetClassNameW(foreground, class_name.as_mut_ptr(), class_name.len() as i32) };
     if length <= 0 {
         return false;
     }

@@ -81,7 +81,11 @@ impl AppSettings {
         self.version = SETTINGS_VERSION;
         self.x_ratio = self.x_ratio.clamp(0.0, 1.0);
         self.y_ratio = self.y_ratio.clamp(0.0, 1.0);
-        if self.monitor_name.as_ref().is_some_and(|name| name.len() > 256) {
+        if self
+            .monitor_name
+            .as_ref()
+            .is_some_and(|name| name.len() > 256)
+        {
             self.monitor_name = None;
         }
         Ok(self)

@@ -218,76 +218,59 @@ pub fn build(app: &mut tauri::App, settings: &AppSettings) -> tauri::Result<()> 
         .icon(app.default_window_icon().expect("应用图标缺失").clone())
         .tooltip("踉踉跄跄")
         .menu(&menu)
-        .on_menu_event(move |app, event| {
-            match event.id.as_ref() {
-                "show" => crate::window_mode::show_from_tray(app),
-                "mode_desktop_only" => {
-                    let _ = crate::set_display_mode_value(app, DisplayMode::DesktopOnly);
-                }
-                "mode_normal" => {
-                    let _ = crate::set_display_mode_value(app, DisplayMode::Normal);
-                }
-                "mode_always_on_top" => {
-                    let _ = crate::set_display_mode_value(app, DisplayMode::AlwaysOnTop);
-                }
-                "scale_80" => {
-                    let _ = crate::set_scale_percent_value(app, 80);
-                }
-                "scale_100" => {
-                    let _ = crate::set_scale_percent_value(app, 100);
-                }
-                "scale_130" => {
-                    let _ = crate::set_scale_percent_value(app, 130);
-                }
-                "position_locked" => {
-                    let checked = event_controls
-                        .position_locked
-                        .is_checked()
-                        .unwrap_or(false);
-                    let _ = mutate_setting(app, |settings| settings.position_locked = checked);
-                }
-                "bubble_enabled" => {
-                    let checked = event_controls
-                        .bubble_enabled
-                        .is_checked()
-                        .unwrap_or(true);
-                    let _ = mutate_setting(app, |settings| settings.bubble_enabled = checked);
-                }
-                "auto_companion" => {
-                    let checked = event_controls
-                        .auto_companion
-                        .is_checked()
-                        .unwrap_or(true);
-                    let _ = mutate_setting(app, |settings| settings.auto_companion = checked);
-                }
-                "sound_enabled" => {
-                    let checked = event_controls
-                        .sound_enabled
-                        .is_checked()
-                        .unwrap_or(false);
-                    let _ = mutate_setting(app, |settings| settings.sound_enabled = checked);
-                }
-                "click_through" => {
-                    let checked = event_controls
-                        .click_through
-                        .is_checked()
-                        .unwrap_or(false);
-                    let _ = crate::set_click_through_value(app, checked);
-                }
-                "autostart" => {
-                    if event_controls.autostart.is_checked().unwrap_or(false) {
-                        let _ = app.autolaunch().enable();
-                    } else {
-                        let _ = app.autolaunch().disable();
-                    }
-                    event_controls.sync_autostart(app);
-                }
-                "reset_position" => {
-                    let _ = crate::reset_window_position_value(app);
-                }
-                "quit" => app.exit(0),
-                _ => {}
+        .on_menu_event(move |app, event| match event.id.as_ref() {
+            "show" => crate::window_mode::show_from_tray(app),
+            "mode_desktop_only" => {
+                let _ = crate::set_display_mode_value(app, DisplayMode::DesktopOnly);
             }
+            "mode_normal" => {
+                let _ = crate::set_display_mode_value(app, DisplayMode::Normal);
+            }
+            "mode_always_on_top" => {
+                let _ = crate::set_display_mode_value(app, DisplayMode::AlwaysOnTop);
+            }
+            "scale_80" => {
+                let _ = crate::set_scale_percent_value(app, 80);
+            }
+            "scale_100" => {
+                let _ = crate::set_scale_percent_value(app, 100);
+            }
+            "scale_130" => {
+                let _ = crate::set_scale_percent_value(app, 130);
+            }
+            "position_locked" => {
+                let checked = event_controls.position_locked.is_checked().unwrap_or(false);
+                let _ = mutate_setting(app, |settings| settings.position_locked = checked);
+            }
+            "bubble_enabled" => {
+                let checked = event_controls.bubble_enabled.is_checked().unwrap_or(true);
+                let _ = mutate_setting(app, |settings| settings.bubble_enabled = checked);
+            }
+            "auto_companion" => {
+                let checked = event_controls.auto_companion.is_checked().unwrap_or(true);
+                let _ = mutate_setting(app, |settings| settings.auto_companion = checked);
+            }
+            "sound_enabled" => {
+                let checked = event_controls.sound_enabled.is_checked().unwrap_or(false);
+                let _ = mutate_setting(app, |settings| settings.sound_enabled = checked);
+            }
+            "click_through" => {
+                let checked = event_controls.click_through.is_checked().unwrap_or(false);
+                let _ = crate::set_click_through_value(app, checked);
+            }
+            "autostart" => {
+                if event_controls.autostart.is_checked().unwrap_or(false) {
+                    let _ = app.autolaunch().enable();
+                } else {
+                    let _ = app.autolaunch().disable();
+                }
+                event_controls.sync_autostart(app);
+            }
+            "reset_position" => {
+                let _ = crate::reset_window_position_value(app);
+            }
+            "quit" => app.exit(0),
+            _ => {}
         })
         .on_tray_icon_event(|tray, event| {
             if let TrayIconEvent::Click {

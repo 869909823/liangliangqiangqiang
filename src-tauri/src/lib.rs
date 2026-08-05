@@ -85,8 +85,7 @@ fn get_system_idle_ms() -> u64 {
 fn check_for_updates(app: tauri::AppHandle) -> Result<UpdateCheckResult, String> {
     const RELEASES_API: &str =
         "https://api.github.com/repos/869909823/liangliangqiangqiang/releases";
-    const RELEASES_PAGE: &str =
-        "https://github.com/869909823/liangliangqiangqiang/releases";
+    const RELEASES_PAGE: &str = "https://github.com/869909823/liangliangqiangqiang/releases";
     const ONE_DAY_SECONDS: u64 = 24 * 60 * 60;
 
     let store = app.state::<SettingsStore>();
@@ -193,9 +192,11 @@ pub(crate) fn emit_settings(app: &tauri::AppHandle, settings: &AppSettings) {
 
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|app, _arguments, _cwd| {
-            window_mode::activate_existing(app);
-        }))
+        .plugin(tauri_plugin_single_instance::init(
+            |app, _arguments, _cwd| {
+                window_mode::activate_existing(app);
+            },
+        ))
         .plugin(tauri_plugin_autostart::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
@@ -218,8 +219,7 @@ pub fn run() {
 
             let settings = window_geometry::restore(app.handle()).map_err(std::io::Error::other)?;
             tray::build(app, &settings)?;
-            window_geometry::install_move_listener(app.handle())
-                .map_err(std::io::Error::other)?;
+            window_geometry::install_move_listener(app.handle()).map_err(std::io::Error::other)?;
             set_click_through_value(app.handle(), false).map_err(std::io::Error::other)?;
             window_mode::apply(app.handle(), settings.display_mode)
                 .map_err(std::io::Error::other)?;
