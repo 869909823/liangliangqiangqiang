@@ -11,9 +11,6 @@ on:
         options:
           - beta
           - stable
-  push:
-    tags:
-      - 'v0.2.*'
 
 permissions:
   contents: read
