@@ -1,6 +1,7 @@
 name: 发布 GitHub Release
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - 'v0.2.*'
