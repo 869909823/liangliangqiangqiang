@@ -61,10 +61,16 @@ jobs:
           GH_REPO: ${{ github.repository }}
           TAG: ${{ github.ref_name }}
         run: |
+          # release-assets 可能含子目录（如 Android universal/），只收集文件上传
+          mapfile -t assets < <(find release-assets -type f | sort)
+          if [[ ${#assets[@]} -eq 0 ]]; then
+            echo 'release-assets 中没有文件' >&2
+            exit 1
+          fi
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" release-assets/* --clobber
+            gh release upload "$TAG" "${assets[@]}" --clobber
           elif [[ "$TAG" == *-* ]]; then
-            gh release create "$TAG" release-assets/* --title "踉踉跄跄 $TAG" --generate-notes --prerelease
+            gh release create "$TAG" "${assets[@]}" --title "踉踉跄跄 $TAG" --generate-notes --prerelease
           else
-            gh release create "$TAG" release-assets/* --title "踉踉跄跄 $TAG" --generate-notes --latest
+            gh release create "$TAG" "${assets[@]}" --title "踉踉跄跄 $TAG" --generate-notes --latest
           fi
