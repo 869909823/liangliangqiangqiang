@@ -129,7 +129,7 @@ test('首次安装时只用当前 beta scope 的相对路径预缓存应用外�
   assert.equal(runtime.skippedWaiting, false);
   assert.equal(runtime.messages.length, 0);
   const [cacheName] = await runtime.caches.keys();
-  assert.equal(cacheName, `${cachePrefix(scope)}0.2.0-beta.1`);
+  assert.equal(cacheName, `${cachePrefix(scope)}0.2.0`);
   const cache = await runtime.caches.open(cacheName);
   assert.ok(cache.entries.has(`${scope}index.html`));
   assert.ok(cache.entries.has(`${scope}icons/icon-192.png`));
@@ -144,7 +144,7 @@ test('更新安装完成后提示刷新，收到明确指令才跳过等待', as
 
   assert.equal(runtime.messages.length, 1);
   assert.equal(runtime.messages[0].type, 'pwa:update-available');
-  assert.equal(runtime.messages[0].version, '0.2.0-beta.1');
+  assert.equal(runtime.messages[0].version, '0.2.0');
   assert.equal(runtime.skippedWaiting, false);
   runtime.dispatchMessage({ type: 'SKIP_WAITING' });
   assert.equal(runtime.skippedWaiting, true);
@@ -157,7 +157,7 @@ test('激活时只清理同一 scope 的旧缓存', async () => {
   const stableCache = 'liangliangqiangqiang-pwa-%2Frepository%2F-0.1.0';
   const legacyCache = 'liangliangqiangqiang-v1';
   await runtime.caches.open(`${prefix}0.2.0-beta.0`);
-  await runtime.caches.open(`${prefix}0.2.0-beta.1`);
+  await runtime.caches.open(`${prefix}0.2.0`);
   await runtime.caches.open(stableCache);
   await runtime.caches.open(legacyCache);
 
@@ -166,7 +166,7 @@ test('激活时只清理同一 scope 的旧缓存', async () => {
   assert.equal(runtime.claimedClients, true);
   assert.deepEqual(
     (await runtime.caches.keys()).sort(),
-    [`${prefix}0.2.0-beta.1`, stableCache, legacyCache].sort()
+    [`${prefix}0.2.0`, stableCache, legacyCache].sort()
   );
   assert.equal(runtime.messages.length, 0);
 });

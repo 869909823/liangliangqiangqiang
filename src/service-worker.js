@@ -1,4 +1,4 @@
-const APP_VERSION = '0.2.0-beta.1';
+const APP_VERSION = '0.2.0';
 const CACHE_NAMESPACE = 'liangliangqiangqiang-pwa';
 const SCOPE_URL = new URL(self.registration.scope);
 const SCOPE_KEY = encodeURIComponent(SCOPE_URL.pathname);

@@ -50,11 +50,9 @@ jobs:
         run: |
           channel="${INPUT_CHANNEL:-beta}"
           if [[ "$REF_TYPE" == "tag" ]]; then
-            if [[ "$REF_NAME" == *-* ]]; then
-              channel="beta"
-            else
-              channel="stable"
-            fi
+            # 保留 V1 根路径：tag 触发时固定走 beta，绝不自动覆盖根路径
+            channel="beta"
+            echo "tag $REF_NAME 触发：固定 beta 通道，保留根路径 V1"
           fi
           echo "channel=$channel" >> "$GITHUB_OUTPUT"
       - name: 组装 Pages 文件

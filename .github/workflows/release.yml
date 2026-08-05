@@ -25,8 +25,12 @@ jobs:
     needs: preflight
     uses: ./.github/workflows/build-windows.yml
 
+  android:
+    needs: preflight
+    uses: ./.github/workflows/build-android.yml
+
   release:
-    needs: build
+    needs: [build, android]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -44,6 +48,10 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: windows-installer
+          path: release-assets
+      - uses: actions/download-artifact@v4
+        with:
+          name: android-apk
           path: release-assets
       - name: 创建或更新 Release
         shell: bash
