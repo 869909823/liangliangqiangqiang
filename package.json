@@ -9,7 +9,9 @@
     "test": "node --test",
     "validate": "npm run check && npm test",
     "preview": "python -m http.server 4173 -d src",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "android:init": "tauri android init",
+    "android:build": "tauri android build --apk --debug --target aarch64-linux-android"
   },
   "devDependencies": {
     "@tauri-apps/cli": "2.8.0"
