@@ -73,9 +73,11 @@ jobs:
         shell: bash
         env:
           ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
+          NDK_HOME: ${{ env.ANDROID_SDK_ROOT }}/ndk/27.0.12077973
           CI: 'true'
         run: |
           echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "NDK_HOME=$NDK_HOME"
           npm run android:init
           test -d src-tauri/gen/android \
             && echo 'Android 工程已生成' \
