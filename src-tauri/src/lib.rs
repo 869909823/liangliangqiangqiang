@@ -1,6 +1,9 @@
 mod settings;
+#[cfg(desktop)]
 mod tray;
+#[cfg(desktop)]
 mod window_geometry;
+#[cfg(desktop)]
 mod window_mode;
 
 use serde::Serialize;
@@ -11,10 +14,12 @@ use std::{
 };
 use tauri::{Emitter, Manager, State};
 
+#[cfg(desktop)]
 struct SessionState {
     click_through: AtomicBool,
 }
 
+#[cfg(desktop)]
 impl SessionState {
     fn new() -> Self {
         Self {
@@ -51,34 +56,72 @@ fn update_settings(
     let mut next = previous.clone();
     patch.apply(&mut next);
     let next = state.replace(next)?;
+    #[cfg(desktop)]
     apply_settings_transition(&app, &previous, &next)?;
+    #[cfg(not(desktop))]
+    emit_settings(&app, &next);
     Ok(state.get())
 }
 
+#[cfg(desktop)]
 #[tauri::command]
 fn set_display_mode(app: tauri::AppHandle, mode: DisplayMode) -> Result<AppSettings, String> {
     set_display_mode_value(&app, mode)
 }
 
+#[cfg(not(desktop))]
+#[tauri::command]
+fn set_display_mode(app: tauri::AppHandle, _mode: DisplayMode) -> Result<AppSettings, String> {
+    Ok(app.state::<SettingsStore>().get())
+}
+
+#[cfg(desktop)]
 #[tauri::command]
 fn set_scale_percent(app: tauri::AppHandle, percent: u16) -> Result<AppSettings, String> {
     set_scale_percent_value(&app, percent)
 }
 
+#[cfg(not(desktop))]
+#[tauri::command]
+fn set_scale_percent(app: tauri::AppHandle, _percent: u16) -> Result<AppSettings, String> {
+    Ok(app.state::<SettingsStore>().get())
+}
+
+#[cfg(desktop)]
 #[tauri::command]
 fn reset_window_position(app: tauri::AppHandle) -> Result<AppSettings, String> {
     reset_window_position_value(&app)
 }
 
+#[cfg(not(desktop))]
+#[tauri::command]
+fn reset_window_position(app: tauri::AppHandle) -> Result<AppSettings, String> {
+    Ok(app.state::<SettingsStore>().get())
+}
+
+#[cfg(desktop)]
 #[tauri::command]
 fn set_click_through(app: tauri::AppHandle, enabled: bool) -> Result<bool, String> {
     set_click_through_value(&app, enabled)?;
     Ok(enabled)
 }
 
+#[cfg(not(desktop))]
+#[tauri::command]
+fn set_click_through(_app: tauri::AppHandle, enabled: bool) -> Result<bool, String> {
+    Ok(enabled)
+}
+
+#[cfg(desktop)]
 #[tauri::command]
 fn get_system_idle_ms() -> u64 {
     window_mode::system_idle_ms()
+}
+
+#[cfg(not(desktop))]
+#[tauri::command]
+fn get_system_idle_ms() -> u64 {
+    0
 }
 
 #[tauri::command]
@@ -101,9 +144,13 @@ fn check_for_updates(app: tauri::AppHandle) -> Result<UpdateCheckResult, String>
     let throttled = previous.is_some_and(|value| now.saturating_sub(value) < ONE_DAY_SECONDS);
 
     if !throttled {
-        let previous_settings = settings;
         let next = store.mutate(|value| value.last_update_check = Some(now.to_string()))?;
-        apply_settings_transition(&app, &previous_settings, &next)?;
+        #[cfg(desktop)]
+        apply_settings_transition(&app, &settings, &next)?;
+        #[cfg(not(desktop))]
+        {
+            let _ = (&app, &next);
+        }
     }
 
     let current_version = env!("CARGO_PKG_VERSION").to_string();
@@ -124,6 +171,7 @@ fn check_for_updates(app: tauri::AppHandle) -> Result<UpdateCheckResult, String>
     })
 }
 
+#[cfg(desktop)]
 pub(crate) fn set_display_mode_value(
     app: &tauri::AppHandle,
     mode: DisplayMode,
@@ -135,6 +183,7 @@ pub(crate) fn set_display_mode_value(
     Ok(store.get())
 }
 
+#[cfg(desktop)]
 pub(crate) fn set_scale_percent_value(
     app: &tauri::AppHandle,
     percent: u16,
@@ -145,6 +194,7 @@ pub(crate) fn set_scale_percent_value(
     Ok(settings)
 }
 
+#[cfg(desktop)]
 pub(crate) fn reset_window_position_value(app: &tauri::AppHandle) -> Result<AppSettings, String> {
     let settings = window_geometry::reset_to_primary(app)?;
     sync_tray(app, &settings);
@@ -152,6 +202,7 @@ pub(crate) fn reset_window_position_value(app: &tauri::AppHandle) -> Result<AppS
     Ok(settings)
 }
 
+#[cfg(desktop)]
 pub(crate) fn set_click_through_value(app: &tauri::AppHandle, enabled: bool) -> Result<(), String> {
     window_mode::set_click_through(app, enabled)?;
     app.state::<SessionState>()
@@ -163,6 +214,7 @@ pub(crate) fn set_click_through_value(app: &tauri::AppHandle, enabled: bool) -> 
     Ok(())
 }
 
+#[cfg(desktop)]
 pub(crate) fn apply_settings_transition(
     app: &tauri::AppHandle,
     previous: &AppSettings,
@@ -180,6 +232,7 @@ pub(crate) fn apply_settings_transition(
     Ok(())
 }
 
+#[cfg(desktop)]
 pub(crate) fn sync_tray(app: &tauri::AppHandle, settings: &AppSettings) {
     if let Some(tray) = app.try_state::<tray::TrayState>() {
         tray.sync_settings(settings);
@@ -191,13 +244,17 @@ pub(crate) fn emit_settings(app: &tauri::AppHandle, settings: &AppSettings) {
 }
 
 pub fn run() {
-    tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(
+    let mut builder = tauri::Builder::default();
+    #[cfg(desktop)]
+    {
+        builder = builder.plugin(tauri_plugin_single_instance::init(
             |app, _arguments, _cwd| {
                 window_mode::activate_existing(app);
             },
-        ))
-        .plugin(tauri_plugin_autostart::Builder::new().build())
+        ));
+        builder = builder.plugin(tauri_plugin_autostart::Builder::new().build());
+    }
+    builder
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             get_settings,
@@ -213,17 +270,22 @@ pub fn run() {
             let config_dir = app.path().app_config_dir()?;
             let store = SettingsStore::load(config_dir).map_err(std::io::Error::other)?;
             app.manage(store);
-            app.manage(SessionState::new());
-            app.manage(window_mode::WindowModeState::new());
-            app.manage(window_geometry::GeometryState::new());
+            #[cfg(desktop)]
+            {
+                app.manage(SessionState::new());
+                app.manage(window_mode::WindowModeState::new());
+                app.manage(window_geometry::GeometryState::new());
 
-            let settings = window_geometry::restore(app.handle()).map_err(std::io::Error::other)?;
-            tray::build(app, &settings)?;
-            window_geometry::install_move_listener(app.handle()).map_err(std::io::Error::other)?;
-            set_click_through_value(app.handle(), false).map_err(std::io::Error::other)?;
-            window_mode::apply(app.handle(), settings.display_mode)
-                .map_err(std::io::Error::other)?;
-            window_mode::start_watcher(app.handle().clone());
+                let settings =
+                    window_geometry::restore(app.handle()).map_err(std::io::Error::other)?;
+                tray::build(app, &settings)?;
+                window_geometry::install_move_listener(app.handle())
+                    .map_err(std::io::Error::other)?;
+                set_click_through_value(app.handle(), false).map_err(std::io::Error::other)?;
+                window_mode::apply(app.handle(), settings.display_mode)
+                    .map_err(std::io::Error::other)?;
+                window_mode::start_watcher(app.handle().clone());
+            }
             Ok(())
         })
         .run(tauri::generate_context!())
