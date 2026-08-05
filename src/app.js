@@ -10,7 +10,6 @@ import {
 } from './js/settings.js';
 import { MAIN_STATES, PetStateMachine } from './js/state-machine.js';
 import { randomQuiz } from './js/quiz-bank.js';
-import { randomStory } from './js/story-bank.js';
 
 const DESIGN_WIDTH = 360;
 const DESIGN_HEIGHT = 440;
@@ -49,10 +48,6 @@ const elements = {
   quizOptions: document.querySelector('#quiz-options'),
   quizResult: document.querySelector('#quiz-result'),
   quizNext: document.querySelector('#quiz-next'),
-  storyCard: document.querySelector('#story-card'),
-  storyTitle: document.querySelector('#story-title'),
-  storyText: document.querySelector('#story-text'),
-  storyNext: document.querySelector('#story-next'),
   sleepAfter: document.querySelector('#sleep-after'),
   positionLocked: document.querySelector('#position-locked'),
   edgeSnap: document.querySelector('#edge-snap'),
@@ -169,9 +164,8 @@ function renderState({ state, previousState, options }) {
   if (state === 'fishing') scheduleFishingCatch(); else stopFishingCatchLoop();
   if (state === 'muyu') startMuyuRewardLoop(); else stopMuyuRewardLoop();
   elements.quizCard.hidden = state !== 'quiz';
-  elements.storyCard.hidden = state !== 'story';
+  
   if (state === 'quiz' && state !== previousState) renderQuiz();
-  if (state === 'story' && state !== previousState) renderStory();
   document.body.dataset.petState = state;
   stateButtons.forEach(button => button.classList.toggle('active', button.dataset.state === state));
   if (options.announce !== false) elements.bubble.textContent = randomDialogue(state);
@@ -210,11 +204,6 @@ function answerQuiz(index) {
   setTimeout(() => elements.pet.classList.remove('quiz-correct', 'quiz-wrong'), 900);
 }
 
-function renderStory() {
-  const story = randomStory();
-  elements.storyTitle.textContent = story.title;
-  elements.storyText.textContent = story.text;
-}
 
 const stateMachine = new PetStateMachine({
   initialState: 'idle',
@@ -475,7 +464,6 @@ function bindInteractions() {
   elements.muyuSoundEnabled.addEventListener('change', event => persistSettings({ muyuSoundEnabled: event.target.checked, soundEnabled: event.target.checked }));
   elements.quizSoundEnabled.addEventListener('change', event => persistSettings({ quizSoundEnabled: event.target.checked }));
   elements.quizNext.addEventListener('click', renderQuiz);
-  elements.storyNext.addEventListener('click', renderStory);
   elements.volumePercent.addEventListener('input', event => {
     elements.volumeValue.textContent = `${event.target.value}%`;
   });

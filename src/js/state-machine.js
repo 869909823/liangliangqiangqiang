@@ -7,8 +7,7 @@ export const MAIN_STATES = Object.freeze([
   'sleeping',
   'fishing',
   'muyu',
-  'quiz',
-  'story'
+  'quiz'
 ]);
 
 export const ONE_SHOT_DURATIONS = Object.freeze({

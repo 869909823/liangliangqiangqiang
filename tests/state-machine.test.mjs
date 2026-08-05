@@ -9,7 +9,7 @@ import { FakeClock } from './test-helpers.mjs';
 
 test('状态机公开八个主状态，钓鱼和敲木鱼默认持续', () => {
   assert.deepEqual([...MAIN_STATES], [
-    'idle', 'working', 'thinking', 'error', 'complete', 'sleeping', 'fishing', 'muyu', 'quiz', 'story'
+    'idle', 'working', 'thinking', 'error', 'complete', 'sleeping', 'fishing', 'muyu', 'quiz'
   ]);
   assert.deepEqual({ ...ONE_SHOT_DURATIONS }, {
     error: 4500,

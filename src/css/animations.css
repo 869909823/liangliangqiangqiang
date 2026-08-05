@@ -18,9 +18,9 @@
 .state-sleeping .eye::after { display: none; }
 .state-sleeping .cat { animation: sleep 3s ease-in-out infinite; }
 
-.state-muyu .muyu-set { display: block !important; animation: muyu-props 5.2s linear infinite; }
-.state-muyu .mallet { animation: muyu-mallet 5.2s linear infinite; }
-.state-muyu .wooden-fish { animation: muyu-fish 5.2s linear infinite; }
+.state-muyu .muyu-set { display: block !important; animation: muyu-props .6s linear infinite; }
+.state-muyu .mallet { animation: muyu-mallet .6s ease-in-out infinite; }
+.state-muyu .wooden-fish { animation: muyu-fish .6s ease-in-out infinite; }
 .state-muyu .keyboard { animation: muyu-keyboard 5.2s ease infinite; }
 .state-muyu .cat { animation: muyu-stumble 5.2s ease infinite; }
 .state-fishing .fishing-set { display: block !important; animation: fishing-set 2.8s ease-in-out infinite; }
@@ -89,10 +89,9 @@
 }
 
 @keyframes muyu-mallet {
-  0%, 25% { opacity: 0; transform: rotate(-28deg); }
-  27%, 29.5% { opacity: 1; transform: rotate(-28deg); }
-  30.8% { transform: rotate(27deg); }
-  33%, 44.5% { transform: rotate(-28deg); }
+  0%, 42% { opacity: 1; transform: rotate(-28deg); }
+  50% { transform: rotate(27deg); }
+  58%, 100% { transform: rotate(-28deg); }
   46.2% { transform: rotate(27deg); }
   48.5%, 59.7% { transform: rotate(-28deg); }
   61.5% { transform: rotate(27deg); }
@@ -101,8 +100,8 @@
 }
 
 @keyframes muyu-fish {
-  0%, 29%, 32%, 44.5%, 47.5%, 60%, 63%, 100% { transform: scale(1); }
-  30.8%, 46.2%, 61.5% { transform: scale(.91) rotate(-2deg); }
+  0%, 48%, 58%, 100% { transform: scale(1); }
+  52% { transform: scale(.9) rotate(-2deg); }
 }
 
 @keyframes muyu-stumble {

@@ -17,6 +17,6 @@
 .story-card { max-height:70vh; overflow:auto; }
 .activity-card button { white-space:normal; line-height:1.35; }
 .bubble { overflow-wrap:anywhere; word-break:break-word; }
-.reward-pop { position:absolute; z-index:40; left:50%; top:3%; transform:translate(-50%, 8px); opacity:0; pointer-events:none; color:#b56a2d; font-weight:800; font-size:18px; text-shadow:0 1px 0 #fff; }
+.reward-pop { position:absolute; z-index:40; left:78px; top:198px; transform:translate(-50%, 8px); opacity:0; pointer-events:none; color:#b56a2d; font-weight:800; font-size:16px; text-shadow:0 1px 0 #fff; }
 .reward-pop.show { animation: reward-rise 1.2s ease-out forwards; }
 @keyframes reward-rise { 0% { opacity:0; transform:translate(-50%, 10px) scale(.85); } 18% { opacity:1; } 100% { opacity:0; transform:translate(-50%, -22px) scale(1.05); } }
