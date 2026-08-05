@@ -9,9 +9,10 @@ mod window_mode;
 use serde::Serialize;
 use settings::{AppSettings, DisplayMode, SettingsPatch, SettingsStore};
 use std::{
-    sync::atomic::{AtomicBool, Ordering},
     time::{SystemTime, UNIX_EPOCH},
 };
+#[cfg(desktop)]
+use std::sync::atomic::{AtomicBool, Ordering};
 use tauri::{Emitter, Manager, State};
 
 #[cfg(desktop)]
@@ -243,6 +244,8 @@ pub(crate) fn emit_settings(app: &tauri::AppHandle, settings: &AppSettings) {
     let _ = app.emit("settings-changed", settings.clone());
 }
 
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+#[allow(unused_mut)]
 pub fn run() {
     let mut builder = tauri::Builder::default();
     #[cfg(desktop)]
