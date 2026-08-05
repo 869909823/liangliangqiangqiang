@@ -8,11 +8,9 @@ mod window_mode;
 
 use serde::Serialize;
 use settings::{AppSettings, DisplayMode, SettingsPatch, SettingsStore};
-use std::{
-    time::{SystemTime, UNIX_EPOCH},
-};
 #[cfg(desktop)]
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::{Emitter, Manager, State};
 
 #[cfg(desktop)]
