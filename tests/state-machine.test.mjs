@@ -7,9 +7,9 @@ import {
 } from '../src/js/state-machine.js';
 import { FakeClock } from './test-helpers.mjs';
 
-test('状态机公开八个主状态，钓鱼和敲木鱼默认持续', () => {
+test('状态机公开十个主状态，钓鱼和敲木鱼默认持续', () => {
   assert.deepEqual([...MAIN_STATES], [
-    'idle', 'working', 'thinking', 'error', 'complete', 'sleeping', 'fishing', 'muyu', 'quiz'
+    'idle', 'working', 'thinking', 'error', 'complete', 'sleeping', 'fishing', 'muyu', 'quiz', 'story'
   ]);
   assert.deepEqual({ ...ONE_SHOT_DURATIONS }, {
     error: 4500,

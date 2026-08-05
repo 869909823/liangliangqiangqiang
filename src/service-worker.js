@@ -17,6 +17,7 @@ const APP_SHELL = [
   './js/platform.js',
   './js/state-machine.js',
   './js/audio-manager.js',
+  './js/activities.js',
   './js/scheduler.js',
   './js/quiz-bank.js',
   './js/story-bank.js',

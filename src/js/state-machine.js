@@ -1,14 +1,15 @@
-export const MAIN_STATES = Object.freeze([
+import { ACTIVITY_STATES } from './activities.js';
+
+export const BASE_STATES = Object.freeze([
   'idle',
   'working',
   'thinking',
   'error',
   'complete',
-  'sleeping',
-  'fishing',
-  'muyu',
-  'quiz'
+  'sleeping'
 ]);
+
+export const MAIN_STATES = Object.freeze([...BASE_STATES, ...ACTIVITY_STATES]);
 
 export const ONE_SHOT_DURATIONS = Object.freeze({
   error: 4500,

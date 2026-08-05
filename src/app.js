@@ -1,5 +1,5 @@
 import { PetAudioManager } from './js/audio-manager.js';
-import { AMBIENT_DIALOGUES, randomDialogue } from './js/dialogues.js';
+import { AMBIENT_DIALOGUES, randomDialogue, randomLine } from './js/dialogues.js';
 import { createPlatform } from './js/platform.js';
 import { CompanionScheduler } from './js/scheduler.js';
 import {
@@ -9,7 +9,9 @@ import {
   validateSettings
 } from './js/settings.js';
 import { MAIN_STATES, PetStateMachine } from './js/state-machine.js';
+import { ACTIVITIES } from './js/activities.js';
 import { randomQuiz } from './js/quiz-bank.js';
+import { randomStory } from './js/story-bank.js';
 
 const DESIGN_WIDTH = 360;
 const DESIGN_HEIGHT = 440;
@@ -48,6 +50,13 @@ const elements = {
   quizOptions: document.querySelector('#quiz-options'),
   quizResult: document.querySelector('#quiz-result'),
   quizNext: document.querySelector('#quiz-next'),
+  quizHint: document.querySelector('#quiz-hint'),
+  quizHintText: document.querySelector('#quiz-hint-text'),
+  quizHintBtn: document.querySelector('#quiz-hint-btn'),
+  storyCard: document.querySelector('#story-card'),
+  storyTitle: document.querySelector('#story-title'),
+  storyText: document.querySelector('#story-text'),
+  storyNext: document.querySelector('#story-next'),
   sleepAfter: document.querySelector('#sleep-after'),
   positionLocked: document.querySelector('#position-locked'),
   edgeSnap: document.querySelector('#edge-snap'),
@@ -57,11 +66,16 @@ const elements = {
   restoreDefaults: document.querySelector('#restore-defaults'),
   settingsNote: document.querySelector('#settings-note'),
   updateBanner: document.querySelector('#update-banner'),
-  toast: document.querySelector('#toast'),
-  rewardPop: document.querySelector('#reward-pop')
+  toast: document.querySelector('#toast')
 };
 
 const stateButtons = [...document.querySelectorAll('[data-state]')];
+const REWARD_SLOTS = [...document.querySelectorAll('#reward-layer .reward-pop')];
+const REWARD_ANCHORS = Object.freeze({
+  muyu: { x: '87px', y: '292px' },
+  fish: { x: '285px', y: '300px' }
+});
+let rewardSlotIndex = 0;
 const scalePresetButtons = [...document.querySelectorAll('[data-scale]')];
 const platform = createPlatform();
 const audio = new PetAudioManager();
@@ -82,8 +96,8 @@ let pendingUpdate = null;
 let pwaReloadRequested = false;
 let currentQuiz = null;
 let fishingCatchTimer = null;
-let rewardTimer = null;
-let muyuRewardTimer = null;
+let fishingResetTimer = null;
+let quizFeedbackTimer = null;
 
 document.body.classList.add(platform.isTauri ? 'is-tauri' : 'is-web', 'motion-ready');
 
@@ -102,43 +116,45 @@ function clearAmbient() {
 function stopFishingCatchLoop() {
   if (fishingCatchTimer !== null) clearTimeout(fishingCatchTimer);
   fishingCatchTimer = null;
+  if (fishingResetTimer !== null) clearTimeout(fishingResetTimer);
+  fishingResetTimer = null;
   elements.pet.classList.remove('fish-caught');
 }
 
-function showReward(text) {
-  elements.rewardPop.textContent = text;
-  elements.rewardPop.classList.remove('show');
-  void elements.rewardPop.offsetWidth;
-  elements.rewardPop.classList.add('show');
-  if (rewardTimer !== null) clearTimeout(rewardTimer);
-  rewardTimer = setTimeout(() => elements.rewardPop.classList.remove('show'), 1200);
+function showReward(text, anchor = 'muyu') {
+  if (REWARD_SLOTS.length === 0) return;
+  const slot = REWARD_SLOTS[rewardSlotIndex];
+  rewardSlotIndex = (rewardSlotIndex + 1) % REWARD_SLOTS.length;
+  const at = REWARD_ANCHORS[anchor] || REWARD_ANCHORS.muyu;
+  slot.style.setProperty('--reward-x', at.x);
+  slot.style.setProperty('--reward-y', at.y);
+  slot.textContent = text;
+  slot.classList.remove('show');
+  void slot.offsetWidth;
+  slot.classList.add('show');
 }
 
-function stopMuyuRewardLoop() {
-  if (muyuRewardTimer !== null) clearInterval(muyuRewardTimer);
-  muyuRewardTimer = null;
-}
-
-function startMuyuRewardLoop() {
-  stopMuyuRewardLoop();
-  showReward('功德 +1');
-  muyuRewardTimer = setInterval(() => {
-    if (stateMachine.state === 'muyu') showReward('功德 +1');
-  }, 600);
+function fishingCatchTick() {
+  fishingCatchTimer = null;
+  if (stateMachine.state !== 'fishing') return;
+  if (document.hidden || !desktopWindowVisible) {
+    scheduleFishingCatch();
+    return;
+  }
+  elements.pet.classList.remove('fish-caught');
+  void elements.pet.offsetWidth;
+  elements.pet.classList.add('fish-caught');
+  showReward('食物 +1', 'fish');
+  elements.bubble.textContent = '上鱼啦！慢慢收线，今天也有小收获。';
+  fishingResetTimer = setTimeout(() => elements.pet.classList.remove('fish-caught'), 1600);
+  const nextWait = 5000 + Math.floor(Math.random() * 5001);
+  fishingCatchTimer = setTimeout(fishingCatchTick, nextWait);
 }
 
 function scheduleFishingCatch() {
   stopFishingCatchLoop();
   const wait = 5000 + Math.floor(Math.random() * 5001);
-  fishingCatchTimer = setTimeout(() => {
-    fishingCatchTimer = null;
-    if (stateMachine.state !== 'fishing' || document.hidden || !desktopWindowVisible) return;
-    elements.pet.classList.add('fish-caught');
-    showReward('食物 +1');
-    elements.bubble.textContent = '上鱼啦！慢慢收线，今天也有小收获。';
-    setTimeout(() => elements.pet.classList.remove('fish-caught'), 1500);
-    scheduleFishingCatch();
-  }, wait);
+  fishingCatchTimer = setTimeout(fishingCatchTick, wait);
 }
 
 function startAmbient(action, { announce = false } = {}) {
@@ -162,21 +178,31 @@ function renderState({ state, previousState, options }) {
   if (state === previousState) void elements.pet.offsetWidth;
   elements.pet.classList.add(`state-${state}`);
   if (state === 'fishing') scheduleFishingCatch(); else stopFishingCatchLoop();
-  if (state === 'muyu') startMuyuRewardLoop(); else stopMuyuRewardLoop();
-  elements.quizCard.hidden = state !== 'quiz';
-  
+  for (const activity of ACTIVITIES) {
+    if (activity.kind !== 'card') continue;
+    const card = document.getElementById(activity.cardId);
+    if (card) card.hidden = state !== activity.id;
+  }
+
   if (state === 'quiz' && state !== previousState) renderQuiz();
+  if (state === 'story' && state !== previousState) renderStory();
   document.body.dataset.petState = state;
   stateButtons.forEach(button => button.classList.toggle('active', button.dataset.state === state));
   if (options.announce !== false) elements.bubble.textContent = randomDialogue(state);
   if (state === 'muyu') {
-    audio.startMuyuLoop({ automatic: options.source === 'scheduler' });
+    audio.startMuyuLoop({
+      automatic: options.source === 'scheduler',
+      onStrike: () => { if (stateMachine.state === 'muyu') showReward('功德 +1', 'muyu'); }
+    });
   }
   if (state === 'sleeping') audio.stop();
   scheduler?.noteStateChange(state, previousState);
 }
 
 function renderQuiz() {
+  elements.quizResult.hidden = true;
+  elements.quizHint.hidden = true;
+  elements.quizHintBtn.disabled = false;
   currentQuiz = randomQuiz();
   elements.quizQuestion.textContent = currentQuiz.question;
   elements.quizResult.hidden = true;
@@ -189,19 +215,30 @@ function renderQuiz() {
   }));
 }
 
+function renderStory() {
+  const story = randomStory();
+  elements.storyTitle.textContent = story.title;
+  elements.storyText.textContent = story.text;
+}
+
 function answerQuiz(index) {
   if (!currentQuiz || !elements.quizResult.hidden) return;
   const correct = index === currentQuiz.answerIndex;
   audio.playQuizResult(correct);
   elements.quizResult.hidden = false;
   elements.quizResult.className = correct ? 'quiz-result correct' : 'quiz-result wrong';
-  elements.quizResult.innerHTML = `<strong>${correct ? '答对啦！' : '这次没关系，答案是：' + currentQuiz.options[currentQuiz.answerIndex]}</strong><p>${currentQuiz.explanation}</p>`;
+  elements.quizResult.innerHTML = `<strong>${correct ? '答对啦！' : '这次没关系，答案是：' + currentQuiz.options[currentQuiz.answerIndex]}</strong>`;
+  elements.quizHintText.textContent = currentQuiz.explanation;
+  elements.quizHint.hidden = false;
+  elements.quizHintBtn.disabled = true;
   elements.quizOptions.querySelectorAll('button').forEach((button, i) => {
     button.disabled = true;
     button.classList.toggle('answer', i === currentQuiz.answerIndex);
   });
   elements.pet.classList.add(correct ? 'quiz-correct' : 'quiz-wrong');
-  setTimeout(() => elements.pet.classList.remove('quiz-correct', 'quiz-wrong'), 900);
+  elements.bubble.textContent = randomLine(correct ? 'quizCorrect' : 'quizWrong');
+  if (quizFeedbackTimer !== null) clearTimeout(quizFeedbackTimer);
+  quizFeedbackTimer = setTimeout(() => elements.pet.classList.remove('quiz-correct', 'quiz-wrong'), 1000);
 }
 
 
@@ -464,6 +501,15 @@ function bindInteractions() {
   elements.muyuSoundEnabled.addEventListener('change', event => persistSettings({ muyuSoundEnabled: event.target.checked, soundEnabled: event.target.checked }));
   elements.quizSoundEnabled.addEventListener('change', event => persistSettings({ quizSoundEnabled: event.target.checked }));
   elements.quizNext.addEventListener('click', renderQuiz);
+  elements.quizHintBtn.addEventListener('click', () => {
+    if (!currentQuiz || !elements.quizResult.hidden) return;
+    elements.quizHintText.textContent = currentQuiz.explanation;
+    elements.quizHint.hidden = false;
+  });
+  elements.storyNext.addEventListener('click', () => {
+    renderStory();
+    elements.bubble.textContent = randomLine('storyTelling');
+  });
   elements.volumePercent.addEventListener('input', event => {
     elements.volumeValue.textContent = `${event.target.value}%`;
   });
@@ -533,6 +579,14 @@ function bindPlatformEvents() {
 
 async function registerServiceWorker() {
   if (!('serviceWorker' in navigator) || !location.protocol.startsWith('http')) return;
+  if (new URLSearchParams(location.search).has('v')) {
+    // 开发预览模式：卸载可能残留的旧 Service Worker，避免命中陈旧缓存。
+    try {
+      const registration = await navigator.serviceWorker.getRegistration();
+      if (registration) await registration.unregister();
+    } catch (_) {}
+    return;
+  }
   navigator.serviceWorker.addEventListener('message', event => {
     if (event.data?.type === 'pwa:update-available') {
       showUpdate({ type: 'pwa', version: event.data.version });

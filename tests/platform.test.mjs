@@ -24,7 +24,7 @@ test('手机版设置损坏时恢复默认值且不影响启动', async () => {
   assert.equal(settings.version, 2);
   assert.equal(settings.displayMode, 'normal');
   assert.equal(settings.scalePercent, 100);
-  assert.equal(settings.soundEnabled, false);
+  assert.equal(settings.soundEnabled, true);
 });
 
 test('手机版只持久化公共字段并立即发出 settings-changed', async () => {

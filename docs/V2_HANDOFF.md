@@ -16,8 +16,10 @@ V2 不改变角色设计。脸型、三花纹路、浅蓝围巾、小鱼吊坠�
 前端不使用框架或打包器，浏览器可直接加载 `src`。公共状态为：
 
 ```text
-idle | working | thinking | error | complete | sleeping | moyu
+idle | working | thinking | error | complete | sleeping | fishing | muyu | quiz | story
 ```
+
+其中 `fishing`、`muyu`、`quiz`、`story` 由 `src/js/activities.js` 玩法注册表定义，新增玩法只需在注册表追加一条并补按钮与动画。
 
 仅在待机中出现的叠加动作为：
 

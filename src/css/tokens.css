@@ -9,6 +9,7 @@
   --pink: #f4a6a8;
   --paper: rgba(255, 255, 255, .96);
   --pet-scale: 1;
+  --muyu-beat: 1.2s; /* 必须与 js/audio-manager.js 的 MUYU_BEAT_MS 一致，由 scripts/check.mjs 校验 */
 }
 
 * { box-sizing: border-box; }

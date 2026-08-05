@@ -3,6 +3,14 @@ export const AUDIO_SOURCES = Object.freeze({
   bright: 'assets/audio/mokugyo-bright.wav'
 });
 
+// 木鱼节拍：一击的周期与槌头触到木鱼的时刻。
+// 必须与 src/css/tokens.css 的 --muyu-beat 保持一致，由 scripts/check.mjs 校验。
+export const MUYU_BEAT_MS = 1200;
+export const MUYU_STRIKE_OFFSET_MS = 456;
+
+// 每个音色预建多个实例轮转播放，让上一条混响尾音自然叠加而不被硬切。
+const VOICE_POOL_SIZE = 3;
+
 function defaultAudioFactory(source) {
   return typeof Audio === 'function' ? new Audio(source) : null;
 }
@@ -24,27 +32,36 @@ export class PetAudioManager {
     this.reducedMotion = false;
     this.visible = true;
     this.unlocked = false;
-    this.scheduled = [];
     this.muyuLoop = false;
     this.loopTimer = null;
-    this.clips = Object.fromEntries(
-      Object.entries(AUDIO_SOURCES).map(([name, source]) => {
+    this.onStrike = null;
+    this.voicePools = {};
+    this.voiceCursor = {};
+    for (const [name, source] of Object.entries(AUDIO_SOURCES)) {
+      const pool = [];
+      for (let index = 0; index < VOICE_POOL_SIZE; index += 1) {
         const clip = this.audioFactory(source);
         if (clip) clip.preload = 'auto';
-        return [name, clip];
-      })
-    );
+        pool.push(clip);
+      }
+      this.voicePools[name] = pool;
+      this.voiceCursor[name] = 0;
+    }
+  }
+
+  allVoices() {
+    return Object.values(this.voicePools).flat();
   }
 
   configure({ soundEnabled, muyuSoundEnabled, quizSoundEnabled, volumePercent, reducedMotion }) {
-    this.enabled = muyuSoundEnabled === undefined ? Boolean(soundEnabled) : Boolean(muyuSoundEnabled);
+    // 木鱼声音 = 「木鱼声音」总开关 ×「木鱼敲击音效」子开关，缺省子开关时只看总开关。
+    this.enabled = Boolean(soundEnabled) && (muyuSoundEnabled === undefined ? true : Boolean(muyuSoundEnabled));
     this.quizEnabled = Boolean(quizSoundEnabled);
     this.volume = Math.min(1, Math.max(0, Number(volumePercent) / 100 || 0));
     this.reducedMotion = Boolean(reducedMotion);
-    for (const clip of Object.values(this.clips)) {
+    for (const clip of this.allVoices()) {
       if (clip) clip.volume = this.volume;
     }
-    if (!this.enabled) this.stop();
   }
 
   playQuizResult(correct) {
@@ -56,7 +73,7 @@ export class PetAudioManager {
 
   async unlock() {
     if (this.unlocked) return true;
-    const clips = Object.values(this.clips).filter(Boolean);
+    const clips = this.allVoices().filter(Boolean);
     const attempts = clips.map(async clip => {
       const previousMuted = clip.muted;
       clip.muted = true;
@@ -77,50 +94,38 @@ export class PetAudioManager {
     return this.unlocked;
   }
 
-  playMuyuSequence({ automatic = false } = {}) {
+  // 节拍器与发声解耦：即使关闭音效，节拍仍继续驱动 onStrike（飘字），
+  // 发声仅受 this.enabled 控制。
+  startMuyuLoop({ automatic = false, onStrike = null } = {}) {
     this.stop();
-    if (!this.enabled || !this.visible || (automatic && this.reducedMotion)) return false;
-    this.scheduleClip('soft', 1600);
-    this.scheduleClip('bright', 2400);
-    this.scheduleClip('soft', 3200);
-    return true;
-  }
-
-  startMuyuLoop({ automatic = false } = {}) {
-    this.stop();
-    if (!this.enabled || !this.visible || (automatic && this.reducedMotion)) return false;
+    this.onStrike = typeof onStrike === 'function' ? onStrike : null;
+    if (!this.visible) return false;
     this.muyuLoop = true;
-    this.playClip('soft');
-    this.scheduleMuyuCycle();
+    this.scheduleStrike(MUYU_STRIKE_OFFSET_MS);
     return true;
   }
 
-  scheduleMuyuCycle() {
-    // 一个短促木鱼音色按固定节奏重复，避免听起来像两种提示音拼接。
-    this.scheduleClip('soft', 600);
+  scheduleStrike(delay) {
+    if (this.loopTimer !== null) this.clearTimer(this.loopTimer);
     this.loopTimer = this.setTimer(() => {
       this.loopTimer = null;
-      if (this.muyuLoop && this.visible) this.scheduleMuyuCycle();
-    }, 600);
+      this.fireStrike();
+    }, delay);
   }
 
-  scheduleClip(name, delay) {
-    const entry = {
-      name,
-      remaining: delay,
-      dueAt: this.now() + delay,
-      timer: null
-    };
-    entry.timer = this.setTimer(() => {
-      this.scheduled = this.scheduled.filter(item => item !== entry);
-      this.playClip(entry.name);
-    }, delay);
-    this.scheduled.push(entry);
+  fireStrike() {
+    if (!this.muyuLoop || !this.visible) return;
+    if (this.onStrike) this.onStrike();
+    this.playClip('soft');
+    if (this.muyuLoop && this.visible) this.scheduleStrike(MUYU_BEAT_MS);
   }
 
   playClip(name) {
     if (!this.enabled || !this.visible) return;
-    const clip = this.clips[name];
+    const pool = this.voicePools[name];
+    if (!pool || pool.length === 0) return;
+    const clip = pool[this.voiceCursor[name] % pool.length];
+    this.voiceCursor[name] += 1;
     if (!clip) return;
     try {
       clip.pause();
@@ -138,13 +143,7 @@ export class PetAudioManager {
     this.visible = false;
     if (this.loopTimer !== null) this.clearTimer(this.loopTimer);
     this.loopTimer = null;
-    for (const entry of this.scheduled) {
-      if (entry.timer !== null) this.clearTimer(entry.timer);
-      entry.timer = null;
-      entry.remaining = Math.max(0, entry.dueAt - this.now());
-    }
-    if (this.muyuLoop) this.scheduled = [];
-    for (const clip of Object.values(this.clips)) {
+    for (const clip of this.allVoices()) {
       if (clip) clip.pause();
     }
   }
@@ -152,18 +151,7 @@ export class PetAudioManager {
   resume() {
     if (this.visible) return;
     this.visible = true;
-    if (!this.enabled) {
-      this.stop();
-      return;
-    }
-    if (this.muyuLoop) this.scheduleMuyuCycle();
-    for (const entry of this.scheduled) {
-      entry.dueAt = this.now() + entry.remaining;
-      entry.timer = this.setTimer(() => {
-        this.scheduled = this.scheduled.filter(item => item !== entry);
-        this.playClip(entry.name);
-      }, entry.remaining);
-    }
+    if (this.muyuLoop) this.scheduleStrike(MUYU_STRIKE_OFFSET_MS);
   }
 
   setVisible(visible) {
@@ -175,11 +163,8 @@ export class PetAudioManager {
     this.muyuLoop = false;
     if (this.loopTimer !== null) this.clearTimer(this.loopTimer);
     this.loopTimer = null;
-    for (const entry of this.scheduled) {
-      if (entry.timer !== null) this.clearTimer(entry.timer);
-    }
-    this.scheduled = [];
-    for (const clip of Object.values(this.clips)) {
+    this.onStrike = null;
+    for (const clip of this.allVoices()) {
       if (!clip) continue;
       try {
         clip.pause();
@@ -189,6 +174,6 @@ export class PetAudioManager {
   }
 
   get pendingCount() {
-    return this.scheduled.length;
+    return 0;
   }
 }

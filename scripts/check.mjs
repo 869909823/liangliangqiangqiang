@@ -195,9 +195,32 @@ function checkWorkflows() {
   }
 }
 
+function checkRhythm() {
+  const tokens = read('src/css/tokens.css');
+  const audioManager = read('src/js/audio-manager.js');
+  const beatMs = audioManager.match(/MUYU_BEAT_MS\s*=\s*(\d+)/)?.[1];
+  const cssBeat = tokens.match(/--muyu-beat:\s*([0-9.]+)s/)?.[1];
+  if (!beatMs || !cssBeat) {
+    fail('节拍校验：缺少 js/audio-manager.js 的 MUYU_BEAT_MS 或 css/tokens.css 的 --muyu-beat');
+    return;
+  }
+  const cssMs = Math.round(Number(cssBeat) * 1000);
+  if (cssMs !== Number(beatMs)) {
+    fail(`节拍不一致：js/audio-manager.js 的 MUYU_BEAT_MS=${beatMs}ms 与 css/tokens.css 的 --muyu-beat=${cssBeat}s（${cssMs}ms）不匹配`);
+  }
+  const strikeOffset = audioManager.match(/MUYU_STRIKE_OFFSET_MS\s*=\s*(\d+)/)?.[1];
+  if (strikeOffset && Number(beatMs) > 0) {
+    const percent = Math.round((Number(strikeOffset) / Number(beatMs)) * 100);
+    if (percent !== 38) {
+      fail(`节拍校验：MUYU_STRIKE_OFFSET_MS=${strikeOffset}ms 占节拍的 ${percent}%，应与 muyu-mallet 的触击关键帧 38% 一致`);
+    }
+  }
+}
+
 checkJavaScript();
 checkVersions();
 checkLocalReferences();
+checkRhythm();
 checkWorkflows();
 
 if (warnings.length > 0) console.warn(warnings.map(warning => `警告：${warning}`).join('\n'));

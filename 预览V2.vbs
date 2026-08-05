@@ -7,8 +7,8 @@ escapedFolder = Replace(folder, "'", "''")
 command = "powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -Command " & _
   Chr(34) & "$python = (Get-Command py -ErrorAction SilentlyContinue).Source; " & _
   "if (-not $python) { $python = (Get-Command python -ErrorAction Stop).Source }; " & _
-  "Start-Process -FilePath $python -ArgumentList '-m','http.server','4174','--directory','src' " & _
+  "Start-Process -FilePath $python -ArgumentList 'tools/preview_server.py','src','4175' " & _
   "-WorkingDirectory '" & escapedFolder & "' -WindowStyle Hidden" & Chr(34)
 shell.Run command, 0, False
 WScript.Sleep 700
-shell.Run "http://127.0.0.1:4174/?v=539d288", 1, False
+shell.Run "http://127.0.0.1:4175/?v=10009f2", 1, False

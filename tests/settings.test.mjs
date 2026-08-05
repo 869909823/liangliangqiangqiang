@@ -11,7 +11,7 @@ import {
 test('空设置恢复 V2 安全默认值', () => {
   assert.deepEqual(validateSettings(null), { ...DEFAULT_SETTINGS });
   assert.equal(DEFAULT_SETTINGS.displayMode, 'desktop-only');
-  assert.equal(DEFAULT_SETTINGS.soundEnabled, false);
+  assert.equal(DEFAULT_SETTINGS.soundEnabled, true);
   assert.equal(DEFAULT_SETTINGS.volumePercent, 25);
 });
 

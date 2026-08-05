@@ -49,6 +49,7 @@
         <span class="sparkle two">✨</span>
         <span class="zzz">Zzz…</span>
         <span class="snack-prop" aria-hidden="true"></span>
+        <span class="story-book" aria-hidden="true"></span>
         <span class="fishing-set" aria-hidden="true">
           <i class="water-surface"></i>
           <i class="fishing-rod"></i>
@@ -75,9 +76,12 @@
         <button id="auto-mode" type="button" aria-pressed="true">自动</button>
         <button id="open-settings" type="button">设置</button>
         <button type="button" data-state="quiz">十万个为什么</button>
+        <button type="button" data-state="story">童话故事</button>
       </nav>
 
-      <section id="quiz-card" class="activity-card quiz-card" hidden aria-live="polite"><h2>十万个为什么</h2><p id="quiz-question"></p><div id="quiz-options" class="quiz-options"></div><div id="quiz-result" class="quiz-result" hidden></div><button id="quiz-next" type="button">下一题</button></section>
+      <section id="quiz-card" class="activity-card quiz-card" hidden aria-live="polite"><h2>十万个为什么</h2><p id="quiz-question"></p><div id="quiz-options" class="quiz-options"></div><div id="quiz-result" class="quiz-result" hidden></div><div id="quiz-hint" class="quiz-hint" hidden><span class="quiz-hint-label">解析</span><span id="quiz-hint-text"></span></div><div class="quiz-actions"><button id="quiz-next" type="button">下一题</button><button id="quiz-hint-btn" type="button">提示</button></div></section>
+
+      <section id="story-card" class="activity-card story-card" hidden aria-live="polite"><h2>童话小故事</h2><p id="story-title" class="story-title"></p><p id="story-text" class="story-text"></p><button id="story-next" type="button">再讲一个</button></section>
 
       <section id="settings-panel" class="settings-panel" aria-hidden="true" aria-labelledby="settings-title">
         <header class="settings-header">
@@ -129,8 +133,8 @@
 
           <fieldset class="setting-group">
             <legend>声音与动画</legend>
-            <label class="toggle-row" for="sound-enabled"><span>木鱼声音</span><input id="sound-enabled" type="checkbox"></label>
-            <label class="toggle-row" for="muyu-sound-enabled"><span>木鱼音效</span><input id="muyu-sound-enabled" type="checkbox"></label>
+            <label class="toggle-row" for="sound-enabled"><span>木鱼声音（总开关）</span><input id="sound-enabled" type="checkbox"></label>
+            <label class="toggle-row" for="muyu-sound-enabled"><span>木鱼敲击音效</span><input id="muyu-sound-enabled" type="checkbox"></label>
             <label class="toggle-row" for="quiz-sound-enabled"><span>问答音效</span><input id="quiz-sound-enabled" type="checkbox"></label>
             <label id="volume-row" class="setting-row range-row volume-row disabled" for="volume-percent">
               <span>音量</span>
@@ -163,7 +167,11 @@
       </section>
 
       <div id="toast" class="toast" role="status"></div>
-      <div id="reward-pop" class="reward-pop" aria-live="polite"></div>
+      <div id="reward-layer" class="reward-layer" aria-hidden="true">
+        <span class="reward-pop"></span>
+        <span class="reward-pop"></span>
+        <span class="reward-pop"></span>
+      </div>
     </main>
   </div>
 

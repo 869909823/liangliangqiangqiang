@@ -34,8 +34,11 @@ export const DIALOGUES = Object.freeze({
     '我没有摸鱼，我在积攒功德。',
     '再敲一下就开始工作。'
   ],
-  quiz: ['来做一道小题吧！', '选一个你觉得正确的答案。'],
-  story: ['给你讲个小故事。', '坐稳啦，故事开始了。']
+  quiz: ['来做一道小题吧！', '选一个你觉得正确的答案。', '试试看，答错了也没关系。', '这一题你肯定行！'],
+  story: ['给你讲个小故事。', '坐稳啦，故事开始了。', '从前有个小秘密……', '猜猜故事里会发生什么？'],
+  quizCorrect: ['答对啦，就是这么简单！', '太棒了，你比我聪明！', '答对咯，尾巴都翘起来了！', '没错没错，全对！', '厉害，继续保持！'],
+  quizWrong: ['没关系，看看解析就懂了。', '差一点点，再想想？', '这道题有点难，下次一定行！', '错啦，记住解析，下次就会了。', '没事，我们一起学。'],
+  storyTelling: ['从前呀……', '你猜后来怎么了？', '小猫也听得入迷了。', '故事的结尾总是温柔的。']
 });
 
 export const AMBIENT_DIALOGUES = Object.freeze({
@@ -48,5 +51,10 @@ export const AMBIENT_DIALOGUES = Object.freeze({
 
 export function randomDialogue(state, random = Math.random) {
   const lines = DIALOGUES[state] || DIALOGUES.idle;
+  return lines[Math.floor(random() * lines.length)];
+}
+
+export function randomLine(key, random = Math.random) {
+  const lines = DIALOGUES[key] || DIALOGUES.idle;
   return lines[Math.floor(random() * lines.length)];
 }
