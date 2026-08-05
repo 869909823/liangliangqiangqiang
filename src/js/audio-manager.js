@@ -90,13 +90,14 @@ export class PetAudioManager {
     this.stop();
     if (!this.enabled || !this.visible || (automatic && this.reducedMotion)) return false;
     this.muyuLoop = true;
+    this.playClip('soft');
     this.scheduleMuyuCycle();
     return true;
   }
 
   scheduleMuyuCycle() {
     // 一个短促木鱼音色按固定节奏重复，避免听起来像两种提示音拼接。
-    this.scheduleClip('soft', 0);
+    this.scheduleClip('soft', 600);
     this.loopTimer = this.setTimer(() => {
       this.loopTimer = null;
       if (this.muyuLoop && this.visible) this.scheduleMuyuCycle();

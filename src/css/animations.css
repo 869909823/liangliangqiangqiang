@@ -77,9 +77,7 @@
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
 @keyframes muyu-props {
-  0%, 20% { opacity: 0; transform: translateX(-7px); }
-  24%, 79% { opacity: 1; transform: translateX(0); }
-  94%, 100% { opacity: 0; transform: translateX(-5px); }
+  0%, 100% { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes muyu-keyboard {
