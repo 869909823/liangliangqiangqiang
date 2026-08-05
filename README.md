@@ -33,7 +33,7 @@ npm run tauri dev
 npm run tauri build
 ```
 
-如果不希望在本机安装开发工具，可以把项目放入 GitHub 仓库，再手动运行项目自带的 GitHub Actions 工作流。构建发生在云端，本机只需下载最终安装包。
+如果不希望在本机安装开发工具，可以把项目放入 GitHub 仓库，再手动运行 `.github/workflows/publish-mobile.yml`。它会同时发布手机版并在云端构建 Windows 安装包，本机只需下载最终文件。
 
 ## 操作
 
