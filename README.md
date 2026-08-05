@@ -15,7 +15,7 @@
 
 ## 无安装预览
 
-项目继续使用原生 HTML、CSS 和 JavaScript，不需要前端框架。电脑已有 Python 时可运行：
+项目继续使用原生 HTML、CSS 和 JavaScript，不需要前端框架。不要直接双击 `src/index.html`：`file://` 会拦截模块脚本，页面会显示但没有动作。电脑已有 Python 时，双击项目根目录的 `打开预览.vbs` 即可无终端启动本地预览；也可以手动运行：
 
 ```powershell
 python -m http.server 4173 -d src
