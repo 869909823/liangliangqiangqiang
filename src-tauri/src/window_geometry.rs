@@ -150,7 +150,7 @@ fn reapply_current_scale(app: &tauri::AppHandle) -> Result<AppSettings, String> 
         .map_err(|error| error.to_string())?
         .or_else(|| select_monitor(&window, settings.monitor_name.as_deref()))
         .ok_or_else(|| "没有可用显示器".to_string())?;
-    settings.monitor_name = monitor.name().map(str::to_owned);
+    settings.monitor_name = monitor.name().map(ToString::to_string);
     apply_to_monitor(&window, &monitor, &mut settings)?;
     let settings = persist_geometry(&store, &settings, true)?;
     if settings.monitor_name != previous_monitor {
@@ -171,7 +171,7 @@ pub fn reset_to_primary(app: &tauri::AppHandle) -> Result<AppSettings, String> {
         .ok_or_else(|| "没有可用显示器".to_string())?;
     let previous_monitor = store.get().monitor_name;
     let mut settings = store.get();
-    settings.monitor_name = monitor.name().map(str::to_owned);
+    settings.monitor_name = monitor.name().map(ToString::to_string);
     settings.x_ratio = 1.0;
     settings.y_ratio = 1.0;
     apply_to_monitor(&window, &monitor, &mut settings)?;
@@ -278,7 +278,7 @@ fn capture_geometry(
             .set_position(position)
             .map_err(|error| error.to_string())?;
     }
-    settings.monitor_name = monitor.name().map(str::to_owned);
+    settings.monitor_name = monitor.name().map(ToString::to_string);
     settings.x_ratio = axis_ratio(position.x, work.left, work.width(), size.width);
     settings.y_ratio = axis_ratio(position.y, work.top, work.height(), size.height);
     Ok(())
@@ -321,7 +321,7 @@ fn apply_to_monitor(
     window
         .set_position(clamp_position(position, physical_size, work))
         .map_err(|error| error.to_string())?;
-    settings.monitor_name = monitor.name().map(str::to_owned);
+    settings.monitor_name = monitor.name().map(ToString::to_string);
     Ok(())
 }
 
