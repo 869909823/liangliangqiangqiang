@@ -70,9 +70,16 @@ jobs:
         run: npm run check
 
       - name: 生成 Android 工程
-        run: npm run android:init
+        shell: bash
         env:
+          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
           CI: 'true'
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          npm run android:init
+          test -d src-tauri/gen/android \
+            && echo 'Android 工程已生成' \
+            || { echo '::error::tauri android init 未生成 src-tauri/gen/android'; exit 1; }
 
       - name: 构建 Debug APK
         run: npm run android:build
