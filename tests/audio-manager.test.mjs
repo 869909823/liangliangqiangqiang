@@ -98,16 +98,17 @@ test('关闭声音立即清理全部计时器并停止片段', () => {
 
 test('手动敲木鱼会持续循环，直到切换状态清理', async () => {
   const clock = new FakeClock();
+  const harness = createAudioHarness();
   const manager = new PetAudioManager({
-    audioFactory: createAudioHarness().factory,
+    audioFactory: harness.factory,
     now: clock.now,
     setTimer: clock.setTimer,
     clearTimer: clock.clearTimer
   });
   manager.configure({ soundEnabled: true, volumePercent: 25, reducedMotion: false });
   assert.equal(manager.startMuyuLoop(), true);
-  await clock.advance(5200);
-  assert.equal(manager.pendingCount, 3);
+  await clock.advance(1000);
+  assert.ok(harness.clips[0].playCount >= 1);
   manager.stop();
   assert.equal(manager.pendingCount, 0);
 });

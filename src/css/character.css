@@ -288,6 +288,12 @@
   pointer-events: none;
 }
 
+.water-surface { left: 58px; top: 244px; width: 105px; height: 28px; border-top: 3px solid #73b9c8; border-radius: 50%; opacity: .9; }
+.water-surface::before, .water-surface::after { content: ""; position:absolute; width:70px; height:12px; border-top:2px solid #9ad5df; border-radius:50%; }
+.water-surface::before { left:18px; top:7px; }.water-surface::after { left:35px; top:16px; width:48px; }
+.caught-fish { left: 113px; top: 216px; width: 25px; height: 14px; border-radius: 55% 45% 45% 55%; background:#ef9f65; opacity:0; transform:rotate(-18deg); }
+.caught-fish::after { content:""; position:absolute; right:-9px; top:1px; border-width:6px 9px 6px 0; border-style:solid; border-color:transparent #d77b4a transparent transparent; }
+
 .fishing-rod {
   left: 4px;
   top: 155px;

@@ -92,6 +92,7 @@
 
 .controls button:hover,
 .controls button.active { background: var(--blue); }
+.controls button { white-space: normal; line-height: 1.25; }
 .controls [data-state="fishing"],
 .controls [data-state="muyu"] { color: #9a552b; }
 

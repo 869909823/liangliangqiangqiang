@@ -85,6 +85,7 @@ let pwaRegistration = null;
 let pendingUpdate = null;
 let pwaReloadRequested = false;
 let currentQuiz = null;
+let fishingCatchTimer = null;
 
 document.body.classList.add(platform.isTauri ? 'is-tauri' : 'is-web', 'motion-ready');
 
@@ -98,6 +99,25 @@ function clearAmbient() {
   for (const action of Object.keys(AMBIENT_DURATIONS)) {
     elements.pet.classList.remove(ambientClass(action));
   }
+}
+
+function stopFishingCatchLoop() {
+  if (fishingCatchTimer !== null) clearTimeout(fishingCatchTimer);
+  fishingCatchTimer = null;
+  elements.pet.classList.remove('fish-caught');
+}
+
+function scheduleFishingCatch() {
+  stopFishingCatchLoop();
+  const wait = 5000 + Math.floor(Math.random() * 5001);
+  fishingCatchTimer = setTimeout(() => {
+    fishingCatchTimer = null;
+    if (stateMachine.state !== 'fishing' || document.hidden || !desktopWindowVisible) return;
+    elements.pet.classList.add('fish-caught');
+    elements.bubble.textContent = '上鱼啦！慢慢收线，今天也有小收获。';
+    setTimeout(() => elements.pet.classList.remove('fish-caught'), 1500);
+    scheduleFishingCatch();
+  }, wait);
 }
 
 function startAmbient(action, { announce = false } = {}) {
@@ -120,6 +140,7 @@ function renderState({ state, previousState, options }) {
   for (const knownState of MAIN_STATES) elements.pet.classList.remove(`state-${knownState}`);
   if (state === previousState) void elements.pet.offsetWidth;
   elements.pet.classList.add(`state-${state}`);
+  if (state === 'fishing') scheduleFishingCatch(); else stopFishingCatchLoop();
   elements.quizCard.hidden = state !== 'quiz';
   elements.storyCard.hidden = state !== 'story';
   if (state === 'quiz' && state !== previousState) renderQuiz();

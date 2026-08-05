@@ -26,6 +26,8 @@
 .state-fishing .fishing-set { display: block !important; animation: fishing-set 2.8s ease-in-out infinite; }
 .state-fishing .fishing-rod { animation: fishing-rod 2.8s ease-in-out infinite; }
 .state-fishing .fishing-float { animation: fishing-float 2.1s ease-in-out infinite; }
+.state-fishing .water-surface { animation: water-ripple 2.4s ease-in-out infinite; }
+.state-fishing .caught-fish { animation: fish-catch 1.5s ease-out forwards; }
 
 .ambient-blink .eye { animation: manual-blink .48s ease 1; }
 .ambient-click-reaction .cat { animation: stumble .55s ease-in-out 1; }
@@ -194,6 +196,8 @@
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(7px); }
 }
+@keyframes water-ripple { 0%,100% { transform:scaleX(.92); opacity:.65; } 50% { transform:scaleX(1.05); opacity:1; } }
+@keyframes fish-catch { 0% { opacity:0; transform:translateY(18px) rotate(-18deg); } 35% { opacity:1; transform:translateY(-8px) rotate(-8deg); } 100% { opacity:0; transform:translateY(-34px) rotate(12deg); } }
 
 @media (prefers-reduced-motion: reduce) {
   body:not(.motion-ready) *,

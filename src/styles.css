@@ -4,7 +4,7 @@
 @import url('./css/controls.css');
 @import url('./css/responsive.css');
 
-.activity-card { position:absolute; z-index:20; left:50%; top:8%; transform:translateX(-50%); width:min(320px,88vw); padding:14px; border-radius:18px; background:rgba(255,250,240,.97); box-shadow:0 8px 28px rgba(70,50,40,.22); color:#493b35; }
+.activity-card { position:absolute; z-index:20; left:50%; top:8%; transform:translateX(-50%); width:min(320px,88vw); max-height:76%; box-sizing:border-box; overflow:auto; padding:14px; border-radius:18px; background:rgba(255,250,240,.97); box-shadow:0 8px 28px rgba(70,50,40,.22); color:#493b35; overflow-wrap:anywhere; }
 .activity-card[hidden] { display:none; }
 .activity-card h2 { margin:0 0 8px; font-size:18px; }
 .activity-card p { line-height:1.55; margin:8px 0; }
@@ -15,3 +15,5 @@
 .quiz-result { margin-top:10px; padding:9px; border-radius:10px; background:#f2eee3; }
 .quiz-result.correct { background:#e4f6e5; }.quiz-result.wrong { background:#fff0e7; }
 .story-card { max-height:70vh; overflow:auto; }
+.activity-card button { white-space:normal; line-height:1.35; }
+.bubble { overflow-wrap:anywhere; word-break:break-word; }
