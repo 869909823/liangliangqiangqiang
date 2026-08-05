@@ -24,8 +24,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: 静态检查与单元测试
-        run: npm run validate
+          cache: 'npm'
+      - name: 准备 npm 依赖
+        run: npm install --no-audit --no-fund
+      - name: 静态检查
+        run: npm run check
+      - name: 单元测试
+        run: npm test
 
   rust:
     name: Rust 格式与编译检查
@@ -46,4 +51,13 @@ jobs:
       - name: 检查 Rust 格式
         run: cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check
       - name: 检查 Rust 编译
-        run: cargo check --manifest-path src-tauri/Cargo.toml --locked
+        shell: pwsh
+        run: |
+          $manifest = 'src-tauri/Cargo.toml'
+          $locked = (Test-Path 'src-tauri/Cargo.lock')
+          if ($locked) {
+            cargo check --manifest-path $manifest --locked
+          } else {
+            Write-Warning '未检测到 Cargo.lock，使用 cargo check（不加 --locked）以兼容 v2 分支首次构建'
+            cargo check --manifest-path $manifest
+          }
