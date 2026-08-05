@@ -7,14 +7,13 @@ import {
 } from '../src/js/state-machine.js';
 import { FakeClock } from './test-helpers.mjs';
 
-test('状态机公开七个主状态及约定的一次性时长', () => {
+test('状态机公开八个主状态，钓鱼和敲木鱼默认持续', () => {
   assert.deepEqual([...MAIN_STATES], [
-    'idle', 'working', 'thinking', 'error', 'complete', 'sleeping', 'moyu'
+    'idle', 'working', 'thinking', 'error', 'complete', 'sleeping', 'fishing', 'muyu', 'quiz', 'story'
   ]);
   assert.deepEqual({ ...ONE_SHOT_DURATIONS }, {
     error: 4500,
-    complete: 3500,
-    moyu: 5200
+    complete: 3500
   });
 });
 
@@ -50,6 +49,17 @@ test('新手动状态取消旧的一次性返回计时器', async () => {
 
   assert.equal(machine.state, 'working');
   assert.deepEqual(changes.map(change => change.state), ['error', 'working']);
+});
+
+test('手动钓鱼和敲木鱼不会自动返回待机', async () => {
+  const clock = new FakeClock();
+  const machine = new PetStateMachine({ now: clock.now, setTimer: clock.setTimer, clearTimer: clock.clearTimer });
+  machine.setState('fishing');
+  await clock.advance(60_000);
+  assert.equal(machine.state, 'fishing');
+  machine.setState('muyu');
+  await clock.advance(60_000);
+  assert.equal(machine.state, 'muyu');
 });
 
 test('隐藏期间暂停一次性计时，恢复后继续剩余时长', async () => {

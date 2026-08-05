@@ -7,8 +7,8 @@ export const AMBIENT_ACTIONS = Object.freeze([
   'peek'
 ]);
 
-export const AUTO_MOYU_IDLE_MS = 2 * 60 * 1000;
-export const AUTO_MOYU_COOLDOWN_MS = 10 * 60 * 1000;
+export const AUTO_FISHING_IDLE_MS = 2 * 60 * 1000;
+export const AUTO_FISHING_COOLDOWN_MS = 10 * 60 * 1000;
 
 export function randomDelay(random = Math.random) {
   return 8000 + Math.floor(random() * 12001);
@@ -49,7 +49,7 @@ export class CompanionScheduler {
     this.visible = true;
     this.lastInteractionAt = this.now();
     this.idleStateSince = this.now();
-    this.lastMoyuAt = Number.NEGATIVE_INFINITY;
+    this.lastFishingAt = Number.NEGATIVE_INFINITY;
   }
 
   start() {
@@ -95,12 +95,16 @@ export class CompanionScheduler {
     if (!allowCompanion || !settings.autoCompanion || state !== 'idle') return null;
 
     const idleStateTime = this.now() - this.idleStateSince;
-    const moyuReady = idleStateTime >= AUTO_MOYU_IDLE_MS
-      && this.now() - this.lastMoyuAt >= AUTO_MOYU_COOLDOWN_MS;
-    if (moyuReady && this.random() < 0.08) {
-      this.lastMoyuAt = this.now();
-      this.onState('moyu', { source: 'scheduler' });
-      return 'moyu';
+    const fishingReady = idleStateTime >= AUTO_FISHING_IDLE_MS
+      && this.now() - this.lastFishingAt >= AUTO_FISHING_COOLDOWN_MS;
+    if (fishingReady && this.random() < 0.08) {
+      this.lastFishingAt = this.now();
+      const fishingState = this.random() < 0.5 ? 'fishing' : 'muyu';
+      this.onState(fishingState, {
+        source: 'scheduler',
+        returnAfterMs: 8000
+      });
+      return fishingState;
     }
 
     if (this.random() < 0.06) {
@@ -132,7 +136,7 @@ export class CompanionScheduler {
 
   noteStateChange(state, previousState) {
     if (state === 'idle' && previousState !== 'idle') this.idleStateSince = this.now();
-    if (state === 'moyu') this.lastMoyuAt = this.now();
+    if (state === 'fishing' || state === 'muyu') this.lastFishingAt = this.now();
   }
 
   setVisible(visible) {

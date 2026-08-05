@@ -177,7 +177,8 @@
 
 .tail,
 .snack-prop,
-.moyu-set { display: none !important; }
+.fishing-set,
+.muyu-set { display: none !important; }
 
 .tail {
   right: 18px;
@@ -212,7 +213,7 @@
   border-bottom: 7px solid transparent;
 }
 
-.moyu-set {
+.muyu-set {
   inset: 0;
   width: 100%;
   height: 100%;
@@ -277,4 +278,44 @@
   background: #d69550;
   border: 5px solid var(--dark);
   border-radius: 45%;
+}
+
+.fishing-set {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 8;
+  pointer-events: none;
+}
+
+.fishing-rod {
+  left: 4px;
+  top: 155px;
+  width: 8px;
+  height: 105px;
+  background: #9b6239;
+  border: 3px solid var(--dark);
+  border-radius: 8px;
+  transform: rotate(-34deg);
+  transform-origin: 50% 100%;
+}
+
+.fishing-line {
+  left: 62px;
+  top: 94px;
+  width: 2px;
+  height: 151px;
+  background: var(--dark);
+  transform: rotate(17deg);
+  transform-origin: top center;
+}
+
+.fishing-float {
+  left: 101px;
+  top: 232px;
+  width: 14px;
+  height: 22px;
+  background: var(--pink);
+  border: 3px solid var(--dark);
+  border-radius: 50% 50% 65% 65%;
 }

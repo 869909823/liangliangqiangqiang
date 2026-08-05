@@ -5,13 +5,15 @@ export const MAIN_STATES = Object.freeze([
   'error',
   'complete',
   'sleeping',
-  'moyu'
+  'fishing',
+  'muyu',
+  'quiz',
+  'story'
 ]);
 
 export const ONE_SHOT_DURATIONS = Object.freeze({
   error: 4500,
   complete: 3500,
-  moyu: 5200
 });
 
 export function isMainState(value) {

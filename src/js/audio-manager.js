@@ -19,11 +19,14 @@ export class PetAudioManager {
     this.setTimer = setTimer;
     this.clearTimer = clearTimer;
     this.enabled = false;
+    this.quizEnabled = false;
     this.volume = 0.25;
     this.reducedMotion = false;
     this.visible = true;
     this.unlocked = false;
     this.scheduled = [];
+    this.muyuLoop = false;
+    this.loopTimer = null;
     this.clips = Object.fromEntries(
       Object.entries(AUDIO_SOURCES).map(([name, source]) => {
         const clip = this.audioFactory(source);
@@ -33,14 +36,22 @@ export class PetAudioManager {
     );
   }
 
-  configure({ soundEnabled, volumePercent, reducedMotion }) {
-    this.enabled = Boolean(soundEnabled);
+  configure({ soundEnabled, muyuSoundEnabled, quizSoundEnabled, volumePercent, reducedMotion }) {
+    this.enabled = muyuSoundEnabled === undefined ? Boolean(soundEnabled) : Boolean(muyuSoundEnabled);
+    this.quizEnabled = Boolean(quizSoundEnabled);
     this.volume = Math.min(1, Math.max(0, Number(volumePercent) / 100 || 0));
     this.reducedMotion = Boolean(reducedMotion);
     for (const clip of Object.values(this.clips)) {
       if (clip) clip.volume = this.volume;
     }
     if (!this.enabled) this.stop();
+  }
+
+  playQuizResult(correct) {
+    if (!this.quizEnabled || !this.visible) return false;
+    // Reuse the tiny local wooden clips: bright for success, soft for correction.
+    this.playClip(correct ? 'bright' : 'soft');
+    return true;
   }
 
   async unlock() {
@@ -66,13 +77,31 @@ export class PetAudioManager {
     return this.unlocked;
   }
 
-  playMoyuSequence({ automatic = false } = {}) {
+  playMuyuSequence({ automatic = false } = {}) {
     this.stop();
     if (!this.enabled || !this.visible || (automatic && this.reducedMotion)) return false;
     this.scheduleClip('soft', 1600);
     this.scheduleClip('bright', 2400);
     this.scheduleClip('soft', 3200);
     return true;
+  }
+
+  startMuyuLoop({ automatic = false } = {}) {
+    this.stop();
+    if (!this.enabled || !this.visible || (automatic && this.reducedMotion)) return false;
+    this.muyuLoop = true;
+    this.scheduleMuyuCycle();
+    return true;
+  }
+
+  scheduleMuyuCycle() {
+    this.scheduleClip('soft', 1600);
+    this.scheduleClip('bright', 2400);
+    this.scheduleClip('soft', 3200);
+    this.loopTimer = this.setTimer(() => {
+      this.loopTimer = null;
+      if (this.muyuLoop && this.visible) this.scheduleMuyuCycle();
+    }, 5200);
   }
 
   scheduleClip(name, delay) {
@@ -107,11 +136,14 @@ export class PetAudioManager {
   pause() {
     if (!this.visible) return;
     this.visible = false;
+    if (this.loopTimer !== null) this.clearTimer(this.loopTimer);
+    this.loopTimer = null;
     for (const entry of this.scheduled) {
       if (entry.timer !== null) this.clearTimer(entry.timer);
       entry.timer = null;
       entry.remaining = Math.max(0, entry.dueAt - this.now());
     }
+    if (this.muyuLoop) this.scheduled = [];
     for (const clip of Object.values(this.clips)) {
       if (clip) clip.pause();
     }
@@ -124,6 +156,7 @@ export class PetAudioManager {
       this.stop();
       return;
     }
+    if (this.muyuLoop) this.scheduleMuyuCycle();
     for (const entry of this.scheduled) {
       entry.dueAt = this.now() + entry.remaining;
       entry.timer = this.setTimer(() => {
@@ -139,6 +172,9 @@ export class PetAudioManager {
   }
 
   stop() {
+    this.muyuLoop = false;
+    if (this.loopTimer !== null) this.clearTimer(this.loopTimer);
+    this.loopTimer = null;
     for (const entry of this.scheduled) {
       if (entry.timer !== null) this.clearTimer(entry.timer);
     }

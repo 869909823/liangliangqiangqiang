@@ -24,11 +24,18 @@ export const DIALOGUES = Object.freeze({
     'Zzz……',
     '就眯一小会儿……'
   ],
-  moyu: [
+  fishing: [
+    '鱼钩放好了，先安静陪你一会儿。',
+    '嘘——这条鱼快上钩了。',
+    '摸鱼也是一种专注。'
+  ],
+  muyu: [
     '功德 +1，bug -1。',
     '我没有摸鱼，我在积攒功德。',
     '再敲一下就开始工作。'
-  ]
+  ],
+  quiz: ['来做一道小题吧！', '选一个你觉得正确的答案。'],
+  story: ['给你讲个小故事。', '坐稳啦，故事开始了。']
 });
 
 export const AMBIENT_DIALOGUES = Object.freeze({

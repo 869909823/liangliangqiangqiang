@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-  AUTO_MOYU_COOLDOWN_MS,
-  AUTO_MOYU_IDLE_MS,
+  AUTO_FISHING_COOLDOWN_MS,
+  AUTO_FISHING_IDLE_MS,
   CompanionScheduler,
   randomDelay
 } from '../src/js/scheduler.js';
@@ -44,7 +44,7 @@ test('关闭自动陪伴时不会触发待机动作或伪造工作状态', async
   assert.deepEqual(events, []);
 });
 
-test('自动摸鱼同时满足两分钟待机和十分钟冷却', async () => {
+test('自动摸鱼随机进入钓鱼或敲木鱼，并满足两分钟待机和十分钟冷却', async () => {
   let now = 0;
   let currentState = 'idle';
   const states = [];
@@ -59,22 +59,22 @@ test('自动摸鱼同时满足两分钟待机和十分钟冷却', async () => {
     }
   });
 
-  now = AUTO_MOYU_IDLE_MS - 1;
-  assert.notEqual(await scheduler.runCycle(), 'moyu');
+  now = AUTO_FISHING_IDLE_MS - 1;
+  assert.notEqual(await scheduler.runCycle(), 'fishing');
   currentState = 'idle';
-  now = AUTO_MOYU_IDLE_MS;
-  assert.equal(await scheduler.runCycle(), 'moyu');
-  scheduler.noteStateChange('moyu', 'idle');
+  now = AUTO_FISHING_IDLE_MS;
+  assert.equal(await scheduler.runCycle(), 'fishing');
+  scheduler.noteStateChange('fishing', 'idle');
 
   currentState = 'idle';
-  scheduler.noteStateChange('idle', 'moyu');
-  now += AUTO_MOYU_IDLE_MS;
-  assert.notEqual(await scheduler.runCycle(), 'moyu');
+  scheduler.noteStateChange('idle', 'fishing');
+  now += AUTO_FISHING_IDLE_MS;
+  assert.notEqual(await scheduler.runCycle(), 'fishing');
 
   currentState = 'idle';
-  now = AUTO_MOYU_IDLE_MS + AUTO_MOYU_COOLDOWN_MS;
-  assert.equal(await scheduler.runCycle(), 'moyu');
-  assert.equal(states.filter(state => state === 'moyu').length, 2);
+  now = AUTO_FISHING_IDLE_MS + AUTO_FISHING_COOLDOWN_MS;
+  assert.equal(await scheduler.runCycle(), 'fishing');
+  assert.equal(states.filter(state => state === 'fishing').length, 2);
 });
 
 test('页面隐藏时不运行调度，恢复后重新安排', () => {

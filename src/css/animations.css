@@ -18,11 +18,14 @@
 .state-sleeping .eye::after { display: none; }
 .state-sleeping .cat { animation: sleep 3s ease-in-out infinite; }
 
-.state-moyu .moyu-set { display: block !important; animation: moyu-props 5.2s linear both; }
-.state-moyu .mallet { animation: moyu-mallet 5.2s linear both; }
-.state-moyu .wooden-fish { animation: moyu-fish 5.2s linear both; }
-.state-moyu .keyboard { animation: moyu-keyboard 5.2s ease both; }
-.state-moyu .cat { animation: moyu-stumble 5.2s ease both; }
+.state-muyu .muyu-set { display: block !important; animation: muyu-props 5.2s linear infinite; }
+.state-muyu .mallet { animation: muyu-mallet 5.2s linear infinite; }
+.state-muyu .wooden-fish { animation: muyu-fish 5.2s linear infinite; }
+.state-muyu .keyboard { animation: muyu-keyboard 5.2s ease infinite; }
+.state-muyu .cat { animation: muyu-stumble 5.2s ease infinite; }
+.state-fishing .fishing-set { display: block !important; animation: fishing-set 2.8s ease-in-out infinite; }
+.state-fishing .fishing-rod { animation: fishing-rod 2.8s ease-in-out infinite; }
+.state-fishing .fishing-float { animation: fishing-float 2.1s ease-in-out infinite; }
 
 .ambient-blink .eye { animation: manual-blink .48s ease 1; }
 .ambient-click-reaction .cat { animation: stumble .55s ease-in-out 1; }
@@ -71,19 +74,19 @@
 @keyframes sleep { 50% { transform: translateY(8px) rotate(3deg); } }
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
-@keyframes moyu-props {
+@keyframes muyu-props {
   0%, 20% { opacity: 0; transform: translateX(-7px); }
   24%, 79% { opacity: 1; transform: translateX(0); }
   94%, 100% { opacity: 0; transform: translateX(-5px); }
 }
 
-@keyframes moyu-keyboard {
+@keyframes muyu-keyboard {
   0%, 13% { opacity: 1; transform: translate(0, 0); }
   23%, 92% { opacity: 0; transform: translate(72px, 8px) rotate(5deg); }
   100% { opacity: 1; transform: translate(0, 0); }
 }
 
-@keyframes moyu-mallet {
+@keyframes muyu-mallet {
   0%, 25% { opacity: 0; transform: rotate(-28deg); }
   27%, 29.5% { opacity: 1; transform: rotate(-28deg); }
   30.8% { transform: rotate(27deg); }
@@ -95,12 +98,12 @@
   84%, 100% { opacity: 0; transform: rotate(-65deg) translateX(-8px); }
 }
 
-@keyframes moyu-fish {
+@keyframes muyu-fish {
   0%, 29%, 32%, 44.5%, 47.5%, 60%, 63%, 100% { transform: scale(1); }
   30.8%, 46.2%, 61.5% { transform: scale(.91) rotate(-2deg); }
 }
 
-@keyframes moyu-stumble {
+@keyframes muyu-stumble {
   0%, 13% { transform: rotate(-2deg); }
   6% { transform: rotate(2deg); }
   68%, 77% { transform: translateX(0) rotate(0); }
@@ -173,9 +176,24 @@
   transition-duration: .01ms !important;
 }
 
-.reduce-motion .state-moyu .moyu-set,
+.reduce-motion .state-muyu .muyu-set,
 .reduce-motion .ambient-snack .snack-prop,
 .reduce-motion .ambient-stretch .tail { opacity: 1; }
+
+@keyframes fishing-set {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(3px) rotate(-2deg); }
+}
+
+@keyframes fishing-rod {
+  0%, 100% { transform: rotate(-34deg); }
+  50% { transform: rotate(-27deg); }
+}
+
+@keyframes fishing-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(7px); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   body:not(.motion-ready) *,

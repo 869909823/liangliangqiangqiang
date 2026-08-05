@@ -9,6 +9,8 @@ export const DEFAULT_SETTINGS = Object.freeze({
   bubbleEnabled: true,
   autoCompanion: true,
   soundEnabled: false,
+  muyuSoundEnabled: false,
+  quizSoundEnabled: false,
   volumePercent: 25,
   sleepAfterMinutes: 15,
   positionLocked: false,
@@ -26,6 +28,8 @@ export const WEB_SETTING_KEYS = Object.freeze([
   'bubbleEnabled',
   'autoCompanion',
   'soundEnabled',
+  'muyuSoundEnabled',
+  'quizSoundEnabled',
   'volumePercent',
   'sleepAfterMinutes',
   'reduceMotion'
@@ -62,6 +66,8 @@ export function migrateSettings(input) {
   }
   if (migrated.reduceMotion === 'never') migrated.reduceMotion = 'full';
   if (migrated.reduceMotion === 'always') migrated.reduceMotion = 'reduce';
+  if (!('muyuSoundEnabled' in migrated) && 'soundEnabled' in migrated) migrated.muyuSoundEnabled = Boolean(migrated.soundEnabled);
+  if (!('quizSoundEnabled' in migrated)) migrated.quizSoundEnabled = false;
   return migrated;
 }
 
@@ -82,6 +88,8 @@ export function validateSettings(input) {
     bubbleEnabled: validBoolean(value.bubbleEnabled, DEFAULT_SETTINGS.bubbleEnabled),
     autoCompanion: validBoolean(value.autoCompanion, DEFAULT_SETTINGS.autoCompanion),
     soundEnabled: validBoolean(value.soundEnabled, DEFAULT_SETTINGS.soundEnabled),
+    muyuSoundEnabled: validBoolean(value.muyuSoundEnabled, DEFAULT_SETTINGS.muyuSoundEnabled),
+    quizSoundEnabled: validBoolean(value.quizSoundEnabled, DEFAULT_SETTINGS.quizSoundEnabled),
     volumePercent: Number.isFinite(rawVolume)
       ? clamp(Math.round(rawVolume), 0, 100)
       : DEFAULT_SETTINGS.volumePercent,

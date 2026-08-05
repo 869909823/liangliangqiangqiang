@@ -28,7 +28,7 @@ function createAudioHarness() {
 test('声音默认关闭，不会安排木鱼敲击', () => {
   const harness = createAudioHarness();
   const manager = new PetAudioManager({ audioFactory: harness.factory });
-  assert.equal(manager.playMoyuSequence(), false);
+  assert.equal(manager.playMuyuSequence(), false);
   assert.equal(manager.pendingCount, 0);
 });
 
@@ -42,9 +42,9 @@ test('启用后按 25% 音量安排三次敲击且不会叠加队列', async () 
     clearTimer: clock.clearTimer
   });
   manager.configure({ soundEnabled: true, volumePercent: 25, reducedMotion: false });
-  assert.equal(manager.playMoyuSequence(), true);
+  assert.equal(manager.playMuyuSequence(), true);
   assert.equal(manager.pendingCount, 3);
-  assert.equal(manager.playMoyuSequence(), true);
+  assert.equal(manager.playMuyuSequence(), true);
   assert.equal(manager.pendingCount, 3);
 
   await clock.advance(1600);
@@ -59,9 +59,9 @@ test('启用后按 25% 音量安排三次敲击且不会叠加队列', async () 
 test('自动摸鱼在减少动画时静音，手动触发仍可播放', () => {
   const manager = new PetAudioManager({ audioFactory: createAudioHarness().factory });
   manager.configure({ soundEnabled: true, volumePercent: 25, reducedMotion: true });
-  assert.equal(manager.playMoyuSequence({ automatic: true }), false);
+  assert.equal(manager.playMuyuSequence({ automatic: true }), false);
   assert.equal(manager.pendingCount, 0);
-  assert.equal(manager.playMoyuSequence({ automatic: false }), true);
+  assert.equal(manager.playMuyuSequence({ automatic: false }), true);
   manager.stop();
 });
 
@@ -75,7 +75,7 @@ test('隐藏时暂停计时和声音，恢复后继续剩余时长', async () =>
     clearTimer: clock.clearTimer
   });
   manager.configure({ soundEnabled: true, volumePercent: 40, reducedMotion: false });
-  manager.playMoyuSequence();
+  manager.playMuyuSequence();
   await clock.advance(600);
   manager.setVisible(false);
   await clock.advance(5000);
@@ -90,8 +90,24 @@ test('关闭声音立即清理全部计时器并停止片段', () => {
   const harness = createAudioHarness();
   const manager = new PetAudioManager({ audioFactory: harness.factory });
   manager.configure({ soundEnabled: true, volumePercent: 25, reducedMotion: false });
-  manager.playMoyuSequence();
+  manager.playMuyuSequence();
   manager.configure({ soundEnabled: false, volumePercent: 25, reducedMotion: false });
   assert.equal(manager.pendingCount, 0);
   assert.ok(harness.clips.every(clip => clip.pauseCount > 0));
+});
+
+test('手动敲木鱼会持续循环，直到切换状态清理', async () => {
+  const clock = new FakeClock();
+  const manager = new PetAudioManager({
+    audioFactory: createAudioHarness().factory,
+    now: clock.now,
+    setTimer: clock.setTimer,
+    clearTimer: clock.clearTimer
+  });
+  manager.configure({ soundEnabled: true, volumePercent: 25, reducedMotion: false });
+  assert.equal(manager.startMuyuLoop(), true);
+  await clock.advance(5200);
+  assert.equal(manager.pendingCount, 3);
+  manager.stop();
+  assert.equal(manager.pendingCount, 0);
 });

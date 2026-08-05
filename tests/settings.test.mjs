@@ -51,7 +51,8 @@ test('V1 字段迁移到 V2 字段', () => {
     autoCompanion: false,
     alwaysOnTop: true,
     displayMode: 'always-on-top',
-    reduceMotion: 'reduce'
+    reduceMotion: 'reduce',
+    quizSoundEnabled: false
   });
 });
 

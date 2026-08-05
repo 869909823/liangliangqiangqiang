@@ -9,6 +9,8 @@ import {
   validateSettings
 } from './js/settings.js';
 import { MAIN_STATES, PetStateMachine } from './js/state-machine.js';
+import { randomQuiz } from './js/quiz-bank.js';
+import { randomStory } from './js/story-bank.js';
 
 const DESIGN_WIDTH = 360;
 const DESIGN_HEIGHT = 440;
@@ -40,6 +42,17 @@ const elements = {
   volumePercent: document.querySelector('#volume-percent'),
   volumeValue: document.querySelector('#volume-value'),
   volumeRow: document.querySelector('#volume-row'),
+  muyuSoundEnabled: document.querySelector('#muyu-sound-enabled'),
+  quizSoundEnabled: document.querySelector('#quiz-sound-enabled'),
+  quizCard: document.querySelector('#quiz-card'),
+  quizQuestion: document.querySelector('#quiz-question'),
+  quizOptions: document.querySelector('#quiz-options'),
+  quizResult: document.querySelector('#quiz-result'),
+  quizNext: document.querySelector('#quiz-next'),
+  storyCard: document.querySelector('#story-card'),
+  storyTitle: document.querySelector('#story-title'),
+  storyText: document.querySelector('#story-text'),
+  storyNext: document.querySelector('#story-next'),
   sleepAfter: document.querySelector('#sleep-after'),
   positionLocked: document.querySelector('#position-locked'),
   edgeSnap: document.querySelector('#edge-snap'),
@@ -71,6 +84,7 @@ let desktopWindowVisible = true;
 let pwaRegistration = null;
 let pendingUpdate = null;
 let pwaReloadRequested = false;
+let currentQuiz = null;
 
 document.body.classList.add(platform.isTauri ? 'is-tauri' : 'is-web', 'motion-ready');
 
@@ -106,14 +120,52 @@ function renderState({ state, previousState, options }) {
   for (const knownState of MAIN_STATES) elements.pet.classList.remove(`state-${knownState}`);
   if (state === previousState) void elements.pet.offsetWidth;
   elements.pet.classList.add(`state-${state}`);
+  elements.quizCard.hidden = state !== 'quiz';
+  elements.storyCard.hidden = state !== 'story';
+  if (state === 'quiz' && state !== previousState) renderQuiz();
+  if (state === 'story' && state !== previousState) renderStory();
   document.body.dataset.petState = state;
   stateButtons.forEach(button => button.classList.toggle('active', button.dataset.state === state));
   if (options.announce !== false) elements.bubble.textContent = randomDialogue(state);
-  if (state === 'moyu') {
-    audio.playMoyuSequence({ automatic: options.source === 'scheduler' });
+  if (state === 'muyu') {
+    audio.startMuyuLoop({ automatic: options.source === 'scheduler' });
   }
   if (state === 'sleeping') audio.stop();
   scheduler?.noteStateChange(state, previousState);
+}
+
+function renderQuiz() {
+  currentQuiz = randomQuiz();
+  elements.quizQuestion.textContent = currentQuiz.question;
+  elements.quizResult.hidden = true;
+  elements.quizOptions.replaceChildren(...currentQuiz.options.map((option, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = `${String.fromCharCode(65 + index)}. ${option}`;
+    button.addEventListener('click', () => answerQuiz(index));
+    return button;
+  }));
+}
+
+function answerQuiz(index) {
+  if (!currentQuiz || !elements.quizResult.hidden) return;
+  const correct = index === currentQuiz.answerIndex;
+  audio.playQuizResult(correct);
+  elements.quizResult.hidden = false;
+  elements.quizResult.className = correct ? 'quiz-result correct' : 'quiz-result wrong';
+  elements.quizResult.innerHTML = `<strong>${correct ? '答对啦！' : '这次没关系，答案是：' + currentQuiz.options[currentQuiz.answerIndex]}</strong><p>${currentQuiz.explanation}</p>`;
+  elements.quizOptions.querySelectorAll('button').forEach((button, i) => {
+    button.disabled = true;
+    button.classList.toggle('answer', i === currentQuiz.answerIndex);
+  });
+  elements.pet.classList.add(correct ? 'quiz-correct' : 'quiz-wrong');
+  setTimeout(() => elements.pet.classList.remove('quiz-correct', 'quiz-wrong'), 900);
+}
+
+function renderStory() {
+  const story = randomStory();
+  elements.storyTitle.textContent = story.title;
+  elements.storyText.textContent = story.text;
 }
 
 const stateMachine = new PetStateMachine({
@@ -148,10 +200,13 @@ function syncSettingsControls() {
   elements.bubbleEnabled.checked = settings.bubbleEnabled;
   elements.autoCompanion.checked = settings.autoCompanion;
   elements.soundEnabled.checked = settings.soundEnabled;
+  elements.muyuSoundEnabled.checked = settings.muyuSoundEnabled;
+  elements.quizSoundEnabled.checked = settings.quizSoundEnabled;
   elements.volumePercent.value = String(settings.volumePercent);
   elements.volumeValue.textContent = `${settings.volumePercent}%`;
-  elements.volumePercent.disabled = !settings.soundEnabled;
-  elements.volumeRow.classList.toggle('disabled', !settings.soundEnabled);
+  const anySoundEnabled = settings.muyuSoundEnabled || settings.quizSoundEnabled;
+  elements.volumePercent.disabled = !anySoundEnabled;
+  elements.volumeRow.classList.toggle('disabled', !anySoundEnabled);
   elements.sleepAfter.value = String(settings.sleepAfterMinutes);
   elements.positionLocked.checked = settings.positionLocked;
   elements.edgeSnap.checked = settings.edgeSnap;
@@ -172,6 +227,8 @@ function replaceSettings(next) {
   document.body.classList.toggle('reduce-motion', reducedMotion);
   audio.configure({
     soundEnabled: settings.soundEnabled,
+    muyuSoundEnabled: settings.muyuSoundEnabled,
+    quizSoundEnabled: settings.quizSoundEnabled,
     volumePercent: settings.volumePercent,
     reducedMotion
   });
@@ -367,6 +424,10 @@ function bindInteractions() {
   elements.bubbleEnabled.addEventListener('change', event => persistSettings({ bubbleEnabled: event.target.checked }));
   elements.autoCompanion.addEventListener('change', event => persistSettings({ autoCompanion: event.target.checked }));
   elements.soundEnabled.addEventListener('change', event => persistSettings({ soundEnabled: event.target.checked }));
+  elements.muyuSoundEnabled.addEventListener('change', event => persistSettings({ muyuSoundEnabled: event.target.checked, soundEnabled: event.target.checked }));
+  elements.quizSoundEnabled.addEventListener('change', event => persistSettings({ quizSoundEnabled: event.target.checked }));
+  elements.quizNext.addEventListener('click', renderQuiz);
+  elements.storyNext.addEventListener('click', renderStory);
   elements.volumePercent.addEventListener('input', event => {
     elements.volumeValue.textContent = `${event.target.value}%`;
   });
@@ -391,6 +452,8 @@ function bindInteractions() {
       bubbleEnabled: DEFAULT_SETTINGS.bubbleEnabled,
       autoCompanion: DEFAULT_SETTINGS.autoCompanion,
       soundEnabled: DEFAULT_SETTINGS.soundEnabled,
+      muyuSoundEnabled: DEFAULT_SETTINGS.muyuSoundEnabled,
+      quizSoundEnabled: DEFAULT_SETTINGS.quizSoundEnabled,
       volumePercent: DEFAULT_SETTINGS.volumePercent,
       sleepAfterMinutes: DEFAULT_SETTINGS.sleepAfterMinutes,
       positionLocked: DEFAULT_SETTINGS.positionLocked,

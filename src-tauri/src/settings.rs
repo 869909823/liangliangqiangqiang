@@ -26,6 +26,8 @@ pub struct AppSettings {
     pub bubble_enabled: bool,
     pub auto_companion: bool,
     pub sound_enabled: bool,
+    pub muyu_sound_enabled: bool,
+    pub quiz_sound_enabled: bool,
     pub volume_percent: u8,
     pub sleep_after_minutes: u16,
     pub position_locked: bool,
@@ -46,6 +48,8 @@ impl Default for AppSettings {
             bubble_enabled: true,
             auto_companion: true,
             sound_enabled: false,
+            muyu_sound_enabled: false,
+            quiz_sound_enabled: false,
             volume_percent: 25,
             sleep_after_minutes: 15,
             position_locked: false,
@@ -92,6 +96,8 @@ pub struct SettingsPatch {
     pub bubble_enabled: Option<bool>,
     pub auto_companion: Option<bool>,
     pub sound_enabled: Option<bool>,
+    pub muyu_sound_enabled: Option<bool>,
+    pub quiz_sound_enabled: Option<bool>,
     pub volume_percent: Option<u8>,
     pub sleep_after_minutes: Option<u16>,
     pub position_locked: Option<bool>,
@@ -116,6 +122,12 @@ impl SettingsPatch {
         }
         if let Some(value) = self.sound_enabled {
             settings.sound_enabled = value;
+        }
+        if let Some(value) = self.muyu_sound_enabled {
+            settings.muyu_sound_enabled = value;
+        }
+        if let Some(value) = self.quiz_sound_enabled {
+            settings.quiz_sound_enabled = value;
         }
         if let Some(value) = self.volume_percent {
             settings.volume_percent = value;

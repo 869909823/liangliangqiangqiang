@@ -92,7 +92,8 @@
 
 .controls button:hover,
 .controls button.active { background: var(--blue); }
-.controls [data-state="moyu"] { color: #9a552b; }
+.controls [data-state="fishing"],
+.controls [data-state="muyu"] { color: #9a552b; }
 
 .settings-panel {
   position: absolute;

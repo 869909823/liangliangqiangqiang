@@ -18,6 +18,8 @@ const APP_SHELL = [
   './js/state-machine.js',
   './js/audio-manager.js',
   './js/scheduler.js',
+  './js/quiz-bank.js',
+  './js/story-bank.js',
   './css/tokens.css',
   './css/character.css',
   './css/animations.css',
