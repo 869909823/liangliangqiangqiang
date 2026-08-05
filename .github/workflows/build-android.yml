@@ -15,6 +15,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
+      NDK_HOME: ${{ env.ANDROID_SDK_ROOT }}/ndk/27.0.12077973
     outputs:
       version: ${{ steps.metadata.outputs.version }}
     steps:
@@ -72,8 +75,6 @@ jobs:
       - name: 生成 Android 工程
         shell: bash
         env:
-          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
-          NDK_HOME: ${{ env.ANDROID_SDK_ROOT }}/ndk/27.0.12077973
           CI: 'true'
         run: |
           echo "ANDROID_HOME=$ANDROID_HOME"
